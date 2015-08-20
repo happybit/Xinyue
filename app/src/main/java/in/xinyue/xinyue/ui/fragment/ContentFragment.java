@@ -117,12 +117,6 @@ public class ContentFragment extends ListFragment implements
         }
 
         contentView = inflater.inflate(R.layout.fragment_content, container, false);
-        return contentView;
-    }
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
 
         parseArgument();
 
@@ -140,11 +134,7 @@ public class ContentFragment extends ListFragment implements
             }
         });
 
-        mListView = getListView();
-        mListView.setDividerHeight(2);
 
-        mListView.addFooterView(footerLayout);
-        refreshLayout.setChildView(mListView);
 
         // prevent the progress bar covering by action bar.
         int topToPadding = 100;
@@ -167,12 +157,27 @@ public class ContentFragment extends ListFragment implements
             }
         });
 
-        Log.d("XinyueLog", "refresh layout refreshing status is " + refreshLayout.isRefreshing());
+        Log.d("XinyueLog", mCategory.getDisplayName() + " refresh layout refreshing status is " + refreshLayout.isRefreshing());
         if (!refreshLayout.isRefreshing()) {
             refreshLayout.setRefreshing(true);
+            Log.d("XinyueLog", "Category " + mCategory.getDisplayName() + " is refreshing.");
         }
-        Log.d("XinyueLog", "refresh layout refreshing status is " + refreshLayout.isRefreshing());
+        Log.d("XinyueLog", mCategory.getDisplayName() + " refresh layout refreshing status is " + refreshLayout.isRefreshing());
         fillData();
+
+        return contentView;
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        mListView = getListView();
+        mListView.setDividerHeight(2);
+
+        mListView.addFooterView(footerLayout);
+        refreshLayout.setChildView(mListView);
+
     }
 
     private void loadMore() {
@@ -229,7 +234,9 @@ public class ContentFragment extends ListFragment implements
 
         Bundle args = new Bundle();
         args.putString(EXTRA_PAGE, String.valueOf(FIRST_PAGE_NUMBER));
-        getLoaderManager().initLoader(getLoaderId(mCategory), args, this);
+        //getLoaderManager().initLoader(getLoaderId(mCategory), args, this);
+        //getLoaderManager().initLoader(0, args, this);
+        getLoaderManager().restartLoader(0, args, this);
     }
 
     private void setCoverResource(View view, Cursor cursor) {
@@ -257,7 +264,9 @@ public class ContentFragment extends ListFragment implements
     private void loadNext(int pageNumber) {
         Bundle args = new Bundle();
         args.putString(EXTRA_PAGE, String.valueOf(pageNumber));
-        getLoaderManager().restartLoader(getLoaderId(mCategory), args, this);
+        //getLoaderManager().restartLoader(getLoaderId(mCategory), args, this);
+        getLoaderManager().restartLoader(0, args, this);
+        Log.d("XinyueLog", "restart loader for category: " + mCategory.getDisplayName());
 
         if (pageNumber>1) {
             mNextPage = pageNumber + 1;
@@ -281,6 +290,7 @@ public class ContentFragment extends ListFragment implements
         }
         String[] selectionArgs = new String[] {"%"+categoryMatchString+"%"};
 
+        Log.d("XinyueLog", "create loader for category: " + mCategory.getDisplayName());
         CursorLoader cursorLoader = new CursorLoader(getActivity(),
                 PostContentProvider.CONTENT_URI, projection, selection, selectionArgs,
                 PostReaderContract.PostTable.COLUMN_NAME_CREATED_DATE + " DESC") {
@@ -288,6 +298,7 @@ public class ContentFragment extends ListFragment implements
             public Cursor loadInBackground() {
                 Cursor c = super.loadInBackground();
                 refreshLayout.setLoading(false);
+                Log.d("XinyueLog", "load in background for category: " + mCategory.getDisplayName());
                 asyncQueryRequest(PostContentProvider.CONTENT_URI, mCategory.getDisplayName(), pageNum);
                 return c;
             }
@@ -362,6 +373,7 @@ public class ContentFragment extends ListFragment implements
 
                         if (posts.isEmpty()) {
                             refreshLayout.setRefreshing(false);
+                            Log.d("XinyueLog", "Category " + mCategory.getDisplayName() + " refreshing disappear for empty response.");
 
                             if (loadMoreFlag) {
                                 textMore.setText("No more to load!");
@@ -388,6 +400,7 @@ public class ContentFragment extends ListFragment implements
                         }
 
                         refreshLayout.setRefreshing(false);
+                        Log.d("XinyueLog", "Category " + mCategory.getDisplayName() + " refreshing disappear for complete response.");
 
                         if (loadMoreFlag) {
                             textMore.setText("more...");
