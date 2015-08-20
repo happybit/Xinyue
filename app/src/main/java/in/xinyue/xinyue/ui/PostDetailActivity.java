@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.util.Log;
 import android.view.Menu;
@@ -18,6 +20,7 @@ import in.xinyue.xinyue.swipeback.SwipeBackActivity;
 
 public class PostDetailActivity extends SwipeBackActivity {
 
+    private Toolbar toolbar;
     private TextView mPostTitle;
     private TextView mPostCategory;
     private TextView mPostContent;
@@ -28,6 +31,10 @@ public class PostDetailActivity extends SwipeBackActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post_detail);
+
+        // Initializing Toolbar and setting it as the actionbar
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         mPostTitle = (TextView) findViewById(R.id.post_title);
         mPostCategory = (TextView) findViewById(R.id.post_category);

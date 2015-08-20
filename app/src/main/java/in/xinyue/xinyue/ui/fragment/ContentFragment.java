@@ -299,6 +299,7 @@ public class ContentFragment extends ListFragment implements
                 Cursor c = super.loadInBackground();
                 refreshLayout.setLoading(false);
                 Log.d("XinyueLog", "load in background for category: " + mCategory.getDisplayName());
+                // TODO: check internect connection first.
                 asyncQueryRequest(PostContentProvider.CONTENT_URI, mCategory.getDisplayName(), pageNum);
                 return c;
             }
@@ -464,8 +465,8 @@ public class ContentFragment extends ListFragment implements
                     progressBar.setVisibility(View.GONE);
                 }
 
-                //Toast.makeText(getActivity(), "Internet connection error.",
-                //        Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), "Internet connection error.",
+                        Toast.LENGTH_SHORT).show();
             }
         });
 
