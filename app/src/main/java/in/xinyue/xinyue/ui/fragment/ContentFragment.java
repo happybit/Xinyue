@@ -5,8 +5,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -300,19 +304,38 @@ public class ContentFragment extends ListFragment implements
                 Cursor c = super.loadInBackground();
                 refreshLayout.setLoading(false);
                 Log.d("XinyueLog", "load in background for category: " + mCategory.getDisplayName());
-                // TODO: check internect connection first.
-                asyncQueryRequest(PostContentProvider.CONTENT_URI, mCategory.getDisplayName(), pageNum);
+                if (isDataConnected() || isWifiConnected()) {
+                    asyncQueryRequest(PostContentProvider.CONTENT_URI,
+                            mCategory.getDisplayName(), pageNum);
+                } else {
+                    // UI operation like Toast cannot perform in background thread without Looper.
+                    Handler handler = new Handler(Looper.getMainLooper());
+
+                    handler.post(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            Toast.makeText(getActivity(), "Data is not connected!",
+                                    Toast.LENGTH_SHORT).show();
+
+                            refreshLayout.setRefreshing(false);
+
+                            if (loadMoreFlag) {
+                                if (mNextPage > 2) {
+                                    mNextPage--;
+                                }
+                                textMore.setText("Connect failed. Click to retry!");
+                                textMore.setVisibility(View.VISIBLE);
+                                progressBar.setVisibility(View.GONE);
+                            }
+                        }
+                    });
+
+                }
+
                 return c;
             }
         });
-    }
-
-    private Uri getContentUri(String pageNumber) {
-        Uri contentUri = PostContentProvider.CONTENT_URI.buildUpon().
-                appendQueryParameter(EXTRA_CATEGORY, mCategory.getDisplayName()).build();
-        contentUri = contentUri.buildUpon().
-                appendQueryParameter(EXTRA_PAGE, pageNumber).build();
-        return contentUri;
     }
 
     @Override
@@ -473,6 +496,20 @@ public class ContentFragment extends ListFragment implements
 
         MySingleton.getInstance(getActivity()).addToRequestQueue(gsonRequest);
 
+    }
+
+    private boolean isDataConnected() {
+        ConnectivityManager connMgr = (ConnectivityManager)
+                getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connMgr.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+        return networkInfo.isConnected();
+    }
+
+    private boolean isWifiConnected() {
+        ConnectivityManager connMgr = (ConnectivityManager)
+                getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        return networkInfo.isConnected();
     }
 
 }

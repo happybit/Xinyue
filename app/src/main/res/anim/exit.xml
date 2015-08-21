@@ -3,7 +3,7 @@
 <set xmlns:android="http://schemas.android.com/apk/res/android"
     android:shareInterpolator="false">
     <alpha
-        android:toAlpha="0.75"/>
+        android:toAlpha="0.8"/>
     <translate
         android:duration="500"
         android:fromXDelta="0%"
