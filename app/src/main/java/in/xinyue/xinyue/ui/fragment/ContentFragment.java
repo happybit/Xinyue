@@ -201,6 +201,7 @@ public class ContentFragment extends ListFragment implements
         i.putExtra(PostContentProvider.CONTENT_ITEM_TYPE, postUri);
 
         startActivity(i);
+        getActivity().overridePendingTransition(R.anim.enter, R.anim.exit);
     }
 
     private void fillData() {
@@ -291,7 +292,7 @@ public class ContentFragment extends ListFragment implements
         String[] selectionArgs = new String[] {"%"+categoryMatchString+"%"};
 
         Log.d("XinyueLog", "create loader for category: " + mCategory.getDisplayName());
-        CursorLoader cursorLoader = new CursorLoader(getActivity(),
+        return (new CursorLoader(getActivity(),
                 PostContentProvider.CONTENT_URI, projection, selection, selectionArgs,
                 PostReaderContract.PostTable.COLUMN_NAME_CREATED_DATE + " DESC") {
             @Override
@@ -303,9 +304,7 @@ public class ContentFragment extends ListFragment implements
                 asyncQueryRequest(PostContentProvider.CONTENT_URI, mCategory.getDisplayName(), pageNum);
                 return c;
             }
-        };
-
-        return cursorLoader;
+        });
     }
 
     private Uri getContentUri(String pageNumber) {
@@ -445,7 +444,8 @@ public class ContentFragment extends ListFragment implements
                         StringBuilder categorySb = new StringBuilder();
 
                         for (TermsJson.CategoryJson category : categories) {
-                            categorySb.append(category.getSlug() + "; ");
+                            String slugName = category.getSlug() + "; ";
+                            categorySb.append(slugName);
                         }
 
                         return categorySb.toString();

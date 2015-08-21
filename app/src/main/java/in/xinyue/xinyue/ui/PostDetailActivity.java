@@ -50,7 +50,10 @@ public class PostDetailActivity extends SwipeBackActivity {
             Log.d("XinyueLog", "extras is not null");
             postUri = extras.getParcelable(PostContentProvider.CONTENT_ITEM_TYPE);
 
-            Log.d("XinyueLog", postUri.toString());
+            if (postUri != null) {
+                Log.d("XinyueLog", postUri.toString());
+            }
+
             fillData(postUri);
         }
     }
@@ -112,5 +115,11 @@ public class PostDetailActivity extends SwipeBackActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        overridePendingTransition(R.anim.left_to_right, R.anim.right_to_left);
     }
 }
