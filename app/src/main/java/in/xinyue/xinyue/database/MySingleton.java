@@ -6,13 +6,10 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 
-/**
- * Created by pzheng on 7/15/2015.
- */
 public class MySingleton {
 
     private static MySingleton mInstance;
-    private RequestQueue mRequestQueue;
+    public static RequestQueue mRequestQueue;
     private static Context mContext;
 
     private MySingleton(Context context) {
@@ -38,5 +35,9 @@ public class MySingleton {
 
     public <T> void addToRequestQueue(Request<T> req) {
         getRequestQueue().add(req);
+    }
+
+    public static void cancelAll(Object tag) {
+        mRequestQueue.cancelAll(tag);
     }
 }

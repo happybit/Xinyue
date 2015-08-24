@@ -14,12 +14,10 @@ import android.view.View;
 import android.widget.Toast;
 
 import in.xinyue.xinyue.R;
+import in.xinyue.xinyue.database.MySingleton;
 import in.xinyue.xinyue.ui.fragment.AboutFragment;
 import in.xinyue.xinyue.ui.fragment.TabContainerFragment;
 
-/**
- * Created by pzheng on 7/28/2015.
- */
 public class MainActivity extends AppCompatActivity {
 
     // Defining variables
@@ -145,6 +143,12 @@ public class MainActivity extends AppCompatActivity {
             fragmentManager.popBackStack();
         } else
             super.onBackPressed();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        MySingleton.cancelAll(this);
     }
 
 }

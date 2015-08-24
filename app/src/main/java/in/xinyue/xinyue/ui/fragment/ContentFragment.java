@@ -17,7 +17,6 @@ import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -27,7 +26,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -55,7 +53,6 @@ import in.xinyue.xinyue.api.XinyueApi;
 import in.xinyue.xinyue.contentprovider.PostContentProvider;
 import in.xinyue.xinyue.database.GsonRequest;
 import in.xinyue.xinyue.database.MySingleton;
-import in.xinyue.xinyue.database.PostDatabaseHelper;
 import in.xinyue.xinyue.database.PostReaderContract;
 import in.xinyue.xinyue.json.PostJson;
 import in.xinyue.xinyue.json.TermsJson;
@@ -318,7 +315,9 @@ public class ContentFragment extends ListFragment implements
 
                         @Override
                         public void run() {
-                            Toast.makeText(getActivity(), "Data is not connected!",
+                            Toast.makeText(getActivity(),
+                                    getActivity().getResources().
+                                            getString(R.string.data_connect_is_off),
                                     Toast.LENGTH_SHORT).show();
 
                             refreshLayout.setRefreshing(false);
@@ -327,7 +326,8 @@ public class ContentFragment extends ListFragment implements
                                 if (mNextPage > 2) {
                                     mNextPage--;
                                 }
-                                textMore.setText("Connect failed. Click to retry!");
+                                textMore.setText(getActivity().getResources().
+                                        getString(R.string.footer_fail_indication));
                                 textMore.setVisibility(View.VISIBLE);
                                 progressBar.setVisibility(View.GONE);
                             }
@@ -402,7 +402,8 @@ public class ContentFragment extends ListFragment implements
                             Log.d("XinyueLog", "Category " + mCategory.getDisplayName() + " refreshing disappear for empty response.");
 
                             if (loadMoreFlag) {
-                                textMore.setText("No more to load!");
+                                textMore.setText(getActivity().getResources().
+                                        getString(R.string.footer_no_more_indication));
                                 textMore.setOnClickListener(null);
                                 refreshLayout.setOnLoadListener(null);
                                 textMore.setVisibility(View.VISIBLE);
@@ -415,6 +416,10 @@ public class ContentFragment extends ListFragment implements
                         for(int i=0; i<posts.size(); i++) {
                             PostJson post = posts.get(i);
                             ContentValues postValues = getPostValues(post);
+
+                            if (getActivity() == null) {
+                                return;
+                            }
 
                             Uri providerUri = getActivity().getContentResolver().
                                     insert(PostContentProvider.CONTENT_URI, postValues);
@@ -429,7 +434,8 @@ public class ContentFragment extends ListFragment implements
                         Log.d("XinyueLog", "Category " + mCategory.getDisplayName() + " refreshing disappear for complete response.");
 
                         if (loadMoreFlag) {
-                            textMore.setText("more...");
+                            textMore.setText(getActivity().getResources().
+                                    getString(R.string.footer_has_more_indication));
                             textMore.setVisibility(View.VISIBLE);
                             progressBar.setVisibility(View.GONE);
                         }
@@ -486,12 +492,14 @@ public class ContentFragment extends ListFragment implements
                     if (mNextPage > 2) {
                         mNextPage--;
                     }
-                    textMore.setText("Connect failed. Click to retry!");
+                    textMore.setText(getActivity().getResources().
+                            getString(R.string.footer_fail_indication));
                     textMore.setVisibility(View.VISIBLE);
                     progressBar.setVisibility(View.GONE);
                 }
 
-                Toast.makeText(getActivity(), "Internet connection error.",
+                Toast.makeText(getActivity(), getActivity().getResources().
+                                getString(R.string.data_connect_is_failed),
                         Toast.LENGTH_SHORT).show();
             }
         });

@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import in.xinyue.xinyue.R;
 import in.xinyue.xinyue.contentprovider.PostContentProvider;
+import in.xinyue.xinyue.database.MySingleton;
 import in.xinyue.xinyue.database.PostReaderContract;
 import in.xinyue.xinyue.database.UILImageGetter;
 import in.xinyue.xinyue.swipeback.SwipeBackActivity;
@@ -121,5 +122,11 @@ public class PostDetailActivity extends SwipeBackActivity {
     public void onBackPressed() {
         super.onBackPressed();
         overridePendingTransition(R.anim.left_to_right, R.anim.right_to_left);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        MySingleton.cancelAll(this);
     }
 }

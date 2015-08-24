@@ -25,6 +25,13 @@
         <item>Brooches</item>
     </string-array>
 
+    <!-- Strings for listview connecting indication -->
+    <string name="footer_fail_indication">Connect failed. Click to retry!</string>
+    <string name="footer_no_more_indication">No more to load!</string>
+    <string name="footer_has_more_indication">More...</string>
+    <string name="data_connect_is_off">Data is not connected!</string>
+    <string name="data_connect_is_failed">Internet connection error.</string>
+
     <!-- Strings for AboutFragment-->
     <string name="author">Author: pzheng</string>
     <string name="website">http://www.xinyue.in</string>
