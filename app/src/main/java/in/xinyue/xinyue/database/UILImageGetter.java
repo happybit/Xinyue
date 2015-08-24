@@ -40,10 +40,12 @@ public class UILImageGetter implements Html.ImageGetter {
         Log.d("XinyueLog", source);
 
         DisplayImageOptions options = new DisplayImageOptions.Builder()
+                .showImageOnLoading(R.color.primary_material_light)
+                .showImageForEmptyUri(R.drawable.fail_empty_image)
+                .showImageOnFail(R.drawable.fail_empty_image)
                 .cacheInMemory(true)
                 .cacheOnDisk(true)
-                .considerExifParams(true)
-                .build();
+                .considerExifParams(true).build();
 
         ImageLoader.getInstance().loadImage(source, options, new SimpleImageLoadingListener() {
             @Override

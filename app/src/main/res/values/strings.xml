@@ -24,6 +24,8 @@
         <item>Bracelets</item>
         <item>Brooches</item>
     </string-array>
+    <string name="category_others">Others</string>
+    <string name="category">Category</string>
 
     <!-- Strings for listview connecting indication -->
     <string name="footer_fail_indication">Connect failed. Click to retry!</string>
