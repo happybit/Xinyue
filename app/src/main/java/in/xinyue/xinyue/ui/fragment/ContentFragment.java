@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -117,7 +119,7 @@ public class ContentFragment extends ListFragment implements
         // Set title bar
         ActionBar supportActionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
         if (supportActionBar != null) {
-            supportActionBar.setTitle("Xinyue");
+            supportActionBar.setTitle(getActivity().getString(R.string.app_name));
         }
 
         contentView = inflater.inflate(R.layout.fragment_content, container, false);
@@ -129,6 +131,7 @@ public class ContentFragment extends ListFragment implements
         footerLayout = getActivity().getLayoutInflater().inflate(R.layout.listview_footer, null);
         textMore = (TextView) footerLayout.findViewById(R.id.text_more);
         progressBar = (ProgressBar) footerLayout.findViewById(R.id.load_progress_bar);
+        progressBar.getIndeterminateDrawable().setColorFilter(Color.BLACK, PorterDuff.Mode.MULTIPLY);
 
         textMore.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -144,7 +147,7 @@ public class ContentFragment extends ListFragment implements
         int topToPadding = 100;
         refreshLayout.setProgressViewOffset(false, 0, topToPadding);
 
-        refreshLayout.setColorSchemeResources(R.color.AccentColor);
+        refreshLayout.setColorSchemeResources(R.color.primary_material_dark);
 
         refreshLayout.setOnRefreshListener(new RefreshLayout.OnRefreshListener() {
             @Override
@@ -248,9 +251,9 @@ public class ContentFragment extends ListFragment implements
         String imageUri = cursor.getString(cursor.
                 getColumnIndexOrThrow(PostReaderContract.PostTable.COLUMN_NAME_COVER));
         DisplayImageOptions options = new DisplayImageOptions.Builder()
-                .showImageOnLoading(R.drawable.reminder)
-                .showImageForEmptyUri(R.drawable.reminder)
-                .showImageOnFail(R.drawable.reminder)
+                .showImageOnLoading(R.color.primary_material_light)
+                .showImageForEmptyUri(R.drawable.fail_empty_image)
+                .showImageOnFail(R.drawable.fail_empty_image)
                 .cacheInMemory(true)
                 .cacheOnDisk(true)
                 .considerExifParams(true).build();

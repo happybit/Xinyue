@@ -5,12 +5,12 @@
         <item
             android:id="@+id/content_fragment"
             android:checked="true"
-            android:icon="@drawable/reminder"
-            android:title="@string/app_name"/>
+            android:icon="@drawable/ic_grade_black_18dp"
+            android:title="@string/drawerlayout_menu_home"/>
         <item
             android:id="@+id/about_fragment"
-            android:icon="@drawable/reminder"
-            android:title="About" />
+            android:icon="@drawable/ic_info_outline_black_18dp"
+            android:title="@string/drawerlayout_menu_about" />
     </group>
 
 </menu>

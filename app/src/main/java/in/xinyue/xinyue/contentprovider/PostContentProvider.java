@@ -8,27 +8,8 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
-import android.util.Log;
-import android.widget.Toast;
-
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-
-import java.util.Arrays;
-import java.util.List;
-
-import in.xinyue.xinyue.R;
-import in.xinyue.xinyue.api.XinyueApi;
-import in.xinyue.xinyue.database.MySingleton;
-import in.xinyue.xinyue.database.GsonRequest;
 import in.xinyue.xinyue.database.PostDatabaseHelper;
-import in.xinyue.xinyue.database.PostReaderContract;
 import in.xinyue.xinyue.database.PostReaderContract.PostTable;
-import in.xinyue.xinyue.json.PostJson;
-import in.xinyue.xinyue.json.TermsJson;
-import in.xinyue.xinyue.model.Category;
-import in.xinyue.xinyue.model.RefreshLayout;
-import in.xinyue.xinyue.ui.fragment.ContentFragment;
 
 public class PostContentProvider extends ContentProvider {
 
@@ -56,10 +37,6 @@ public class PostContentProvider extends ContentProvider {
         sUriMatcher.addURI(AUTHORITY, BASE_PATH, POSTS);
         sUriMatcher.addURI(AUTHORITY, BASE_PATH + "/#", POST_ID);
     }
-
-    // uri for querying posts
-    public static final String QUERY_URI =
-            "http://www.xinyue.in/wp-json/posts";
 
     public PostContentProvider() {
     }
@@ -106,14 +83,12 @@ public class PostContentProvider extends ContentProvider {
         // insert the values into a new database row
         String postID = (String) values.get(PostTable.COLUMN_NAME_POST_ID);
 
-        Long rowID = postExists(db, postID);
+        Long rowID = postRowID(db, postID);
         if (rowID == null) {
             long newRowID = mDb.insert(PostTable.TABLE_NAME, null, values);
             if (newRowID >= 0) {
-                Log.d("XinyueLog", "new Row ID: " + newRowID + ", row ID: " + rowID);
                 Uri insertUri = ContentUris.withAppendedId(CONTENT_URI, newRowID);
                 getContext().getContentResolver().notifyChange(insertUri, null);
-                Log.d("XinyueLog", "uri is: " + insertUri);
                 return insertUri;
             }
 
@@ -124,7 +99,7 @@ public class PostContentProvider extends ContentProvider {
         return ContentUris.withAppendedId(CONTENT_URI, rowID);
     }
 
-    private Long postExists(SQLiteDatabase db, String postID) {
+    private Long postRowID(SQLiteDatabase db, String postID) {
         Cursor cursor = null;
         Long rowID = null;
         try {
@@ -170,7 +145,6 @@ public class PostContentProvider extends ContentProvider {
     @Override
     public boolean onCreate() {
         mDbHelper = new PostDatabaseHelper(getContext());
-        // return false;
         return true;
     }
 
@@ -184,7 +158,6 @@ public class PostContentProvider extends ContentProvider {
 
         switch (match) {
             case POSTS:
-                Log.d("XinyueLog", "uri is: " + uri);
                 queryCursor = mDb.query(PostTable.TABLE_NAME, projection,
                         selection,
                         selectionArgs,

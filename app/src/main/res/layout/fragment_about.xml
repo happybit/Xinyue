@@ -17,12 +17,12 @@
             android:paddingTop="10sp"/>
 
         <ImageView
-            android:layout_width="200dp"
-            android:layout_height="200dp"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
             android:contentDescription="icon image"
             android:id="@+id/logo_icon"
             android:layout_gravity="center_horizontal"
-            android:src="@drawable/reminder"
+            android:src="@drawable/circle_icon"
             android:paddingBottom="20sp"/>
 
         <TextView

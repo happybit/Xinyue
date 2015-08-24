@@ -1,16 +1,13 @@
 package in.xinyue.xinyue.model;
 
-/**
- * Created by pzheng on 7/24/2015.
- */
 public enum Category {
     all("all"),
+    earrings("earrings"),
+    pendants("pendants"),
+    necklaces("necklaces"),
     rings("rings"),
     bracelets("bracelets"),
-    earrings("earrings"),
-    brooches("brooches"),
-    pendants("pendants"),
-    necklaces("necklaces");
+    brooches("brooches");
 
     private String displayName;
 
