@@ -351,6 +351,7 @@ public class ContentFragment extends ListFragment implements
         int id = item.getItemId();
 
         if (id == R.id.refresh) {
+            mListView.smoothScrollToPosition(0);
             refreshLayout.setRefreshing(true);
             loadNext(FIRST_PAGE_NUMBER);
             return true;
