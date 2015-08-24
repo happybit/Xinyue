@@ -273,7 +273,7 @@ public class ContentFragment extends ListFragment implements
         getLoaderManager().restartLoader(0, args, this);
         Log.d("XinyueLog", "restart loader for category: " + mCategory.getDisplayName());
 
-        if (pageNumber>1) {
+        if (loadMoreFlag) {
             mNextPage = pageNumber + 1;
         }
     }
@@ -312,7 +312,6 @@ public class ContentFragment extends ListFragment implements
                     Handler handler = new Handler(Looper.getMainLooper());
 
                     handler.post(new Runnable() {
-
                         @Override
                         public void run() {
                             Toast.makeText(getActivity(),
@@ -330,6 +329,7 @@ public class ContentFragment extends ListFragment implements
                                         getString(R.string.footer_fail_indication));
                                 textMore.setVisibility(View.VISIBLE);
                                 progressBar.setVisibility(View.GONE);
+                                loadMoreFlag = false;
                             }
                         }
                     });
@@ -409,6 +409,7 @@ public class ContentFragment extends ListFragment implements
                                 refreshLayout.setOnLoadListener(null);
                                 textMore.setVisibility(View.VISIBLE);
                                 progressBar.setVisibility(View.GONE);
+                                loadMoreFlag = false;
                             }
 
                             return;
@@ -434,11 +435,13 @@ public class ContentFragment extends ListFragment implements
                         refreshLayout.setRefreshing(false);
                         Log.d("XinyueLog", "Category " + mCategory.getDisplayName() + " refreshing disappear for complete response.");
 
+                        Log.d("XinyueLog", "loadMoreFlag is " + loadMoreFlag);
                         if (loadMoreFlag) {
                             textMore.setText(getActivity().getResources().
                                     getString(R.string.footer_has_more_indication));
                             textMore.setVisibility(View.VISIBLE);
                             progressBar.setVisibility(View.GONE);
+                            loadMoreFlag = false;
                         }
 
                     }
@@ -497,6 +500,7 @@ public class ContentFragment extends ListFragment implements
                             getString(R.string.footer_fail_indication));
                     textMore.setVisibility(View.VISIBLE);
                     progressBar.setVisibility(View.GONE);
+                    loadMoreFlag = false;
                 }
 
                 Toast.makeText(getActivity(), getActivity().getResources().
