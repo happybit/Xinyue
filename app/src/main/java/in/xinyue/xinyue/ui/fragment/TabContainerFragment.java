@@ -1,11 +1,9 @@
 package in.xinyue.xinyue.ui.fragment;
 
-
-import android.app.ActionBar;
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -74,12 +72,28 @@ public class TabContainerFragment extends Fragment {
         tabLayout = (TabLayout) view.findViewById(R.id.sliding_tabs);
         //tabLayout.setupWithViewPager(viewPager);
 
-        tabLayout.post(new Runnable() {
+        /*tabLayout.post(new Runnable() {
             @Override
             public void run() {
                 tabLayout.setupWithViewPager(viewPager);
             }
-        });
+        });*/
+
+        // Work-around for TabLayout missing issue
+        // https://code.google.com/p/android/issues/detail?id=180462
+        if (ViewCompat.isLaidOut(tabLayout)) {
+            tabLayout.setupWithViewPager(viewPager);
+        } else {
+            tabLayout.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+                @Override
+                public void onLayoutChange(View v, int left, int top, int right, int bottom,
+                                           int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                    tabLayout.setupWithViewPager(viewPager);
+
+                    tabLayout.removeOnLayoutChangeListener(this);
+                }
+            });
+        }
 
     }
 
