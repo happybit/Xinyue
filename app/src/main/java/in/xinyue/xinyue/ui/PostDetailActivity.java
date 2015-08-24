@@ -17,12 +17,13 @@ import in.xinyue.xinyue.contentprovider.PostContentProvider;
 import in.xinyue.xinyue.database.MySingleton;
 import in.xinyue.xinyue.database.PostReaderContract;
 import in.xinyue.xinyue.database.UILImageGetter;
+import in.xinyue.xinyue.model.Category;
 import in.xinyue.xinyue.swipeback.SwipeBackActivity;
 
 public class PostDetailActivity extends SwipeBackActivity {
 
     private Toolbar toolbar;
-    private TextView mPostTitle;
+    //private TextView mPostTitle;
     private TextView mPostCategory;
     private TextView mPostContent;
 
@@ -37,7 +38,7 @@ public class PostDetailActivity extends SwipeBackActivity {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        mPostTitle = (TextView) findViewById(R.id.post_title);
+        //mPostTitle = (TextView) findViewById(R.id.post_title);
         mPostCategory = (TextView) findViewById(R.id.post_category);
         mPostContent = (TextView) findViewById(R.id.post_content);
 
@@ -72,10 +73,10 @@ public class PostDetailActivity extends SwipeBackActivity {
             Log.d("XinyueLog", "cursor is not null");
 
             cursor.moveToFirst();
-            mPostTitle.setText(cursor.getString(cursor.
-                    getColumnIndexOrThrow(PostReaderContract.PostTable.COLUMN_NAME_TITLE)));
-            mPostCategory.setText(cursor.getString(cursor
-                    .getColumnIndexOrThrow(PostReaderContract.PostTable.COLUMN_NAME_CATEGORY)));
+            //mPostTitle.setText(cursor.getString(cursor.
+            //        getColumnIndexOrThrow(PostReaderContract.PostTable.COLUMN_NAME_TITLE)));
+            mPostCategory.setText(getCategoryName(cursor.getString(cursor
+                    .getColumnIndexOrThrow(PostReaderContract.PostTable.COLUMN_NAME_CATEGORY))));
             mPostContent.setText(Html.fromHtml(cursor.getString(cursor.
                     getColumnIndexOrThrow(PostReaderContract.PostTable.COLUMN_NAME_CONTENT)),
                     new UILImageGetter(mPostContent, this), null));
@@ -94,6 +95,28 @@ public class PostDetailActivity extends SwipeBackActivity {
             cursor.close();
         }
 
+    }
+
+    private String getCategoryName(String categoryString) {
+        StringBuilder categoryName = new StringBuilder();
+        String[] categoryArray = getResources().getStringArray(R.array.categories);
+        if (categoryString.contains("earrings")) {
+            categoryName.append(categoryArray[Category.earrings.ordinal()]);
+        } else if (categoryString.contains("pendants")) {
+            categoryName.append(categoryArray[Category.pendants.ordinal()]);
+        } else if (categoryString.contains("necklaces")) {
+            categoryName.append(categoryArray[Category.necklaces.ordinal()]);
+        } else if (categoryString.contains("; rings;")) {
+            categoryName.append(categoryArray[Category.rings.ordinal()]);
+        } else if (categoryString.contains("bracelets")) {
+            categoryName.append(categoryArray[Category.bracelets.ordinal()]);
+        } else if (categoryString.contains("brooches")) {
+            categoryName.append(categoryArray[Category.brooches.ordinal()]);
+        } else {
+            categoryName.append(getResources().getString(R.string.category_others));
+        }
+
+        return getResources().getString(R.string.category) + ": " + categoryName.toString();
     }
 
     @Override
