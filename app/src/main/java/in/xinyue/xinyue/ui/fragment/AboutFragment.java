@@ -65,6 +65,7 @@ public class AboutFragment extends Fragment {
         ActionBar supportActionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
         if (supportActionBar != null) {
             supportActionBar.setTitle("About");
+            supportActionBar.setElevation(12.0f);
         }
 
         Button creditsButton = (Button) view.findViewById(R.id.credits_button);

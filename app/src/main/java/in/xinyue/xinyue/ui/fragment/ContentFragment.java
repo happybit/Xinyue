@@ -117,6 +117,7 @@ public class ContentFragment extends ListFragment implements
         ActionBar supportActionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
         if (supportActionBar != null) {
             supportActionBar.setTitle(getActivity().getString(R.string.app_name));
+            supportActionBar.setElevation(0);
         }
 
         contentView = inflater.inflate(R.layout.fragment_content, container, false);

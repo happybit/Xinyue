@@ -41,6 +41,7 @@ public class PostDetailActivity extends SwipeBackActivity {
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setElevation(12.0f);
         }
 
         //mPostTitle = (TextView) findViewById(R.id.post_title);
