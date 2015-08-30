@@ -1,5 +1,7 @@
 package in.xinyue.xinyue.ui;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
@@ -68,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
                         transactFragment(fragment, false);
                         return true;
                     case R.id.taobao_fragment:
+                        startTaobaoActivity();
                         return true;
                     case R.id.settings_fragment:
                         fragment = SettingsFragment.newInstance();
@@ -107,6 +110,14 @@ public class MainActivity extends AppCompatActivity {
 
         Fragment fragment = TabContainerFragment.newInstance();
         transactFragment(fragment, true);
+    }
+
+    private void startTaobaoActivity() {
+        Intent intent = new Intent();
+        intent.setAction("android.intent.action.VIEW");
+        Uri content_url = Uri.parse("http://shop.m.taobao.com/shop/shop_index.htm?spm=0.0.0.0&shop_id=107494672");
+        intent.setData(content_url);
+        startActivity(intent);
     }
 
     @Override
