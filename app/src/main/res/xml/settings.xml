@@ -10,8 +10,7 @@
             android:summary="%s"
             android:dialogTitle="@string/language_setting"
             android:entries="@array/pref_language_list"
-            android:entryValues="@array/pref_language_values"
-            android:defaultValue="@string/pref_language_default_value" />
+            android:entryValues="@array/pref_language_values"/>
     </PreferenceCategory>
 
 </PreferenceScreen>

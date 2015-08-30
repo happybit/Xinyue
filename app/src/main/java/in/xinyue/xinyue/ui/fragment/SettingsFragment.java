@@ -1,13 +1,23 @@
 package in.xinyue.xinyue.ui.fragment;
 
 import android.app.Fragment;
+import android.content.Intent;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.ListPreference;
+import android.preference.Preference;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import java.util.List;
+import java.util.Locale;
 
 import in.xinyue.xinyue.R;
 
@@ -20,10 +30,14 @@ import in.xinyue.xinyue.R;
  * Use the {@link SettingsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class SettingsFragment extends PreferenceFragment {
+public class SettingsFragment extends PreferenceFragment
+        implements Preference.OnPreferenceChangeListener {
     public static final String TAG = "settings";
 
     private OnFragmentInteractionListener mListener;
+
+    private ListPreference languageSetting;
+    private static final String LANGUAGE_SETTING_KEY = "pref_key_language";
 
     /**
      * Use this factory method to create a new instance of
@@ -46,6 +60,21 @@ public class SettingsFragment extends PreferenceFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.settings);
+        initView();
+        setListener();
+    }
+
+    private void setListener() {
+        languageSetting.setOnPreferenceChangeListener(this);
+    }
+
+    private void initView() {
+        languageSetting = (ListPreference) findPreference(LANGUAGE_SETTING_KEY);
+
+        if (languageSetting.getValue() == null) {
+            languageSetting.setValue(Locale.getDefault().getLanguage());
+        }
+        //languageSetting.getSharedPreferences().edit().putBoolean(LANGUAGE_SETTING_KEY, false).commit();
     }
 
     @Override
@@ -53,6 +82,10 @@ public class SettingsFragment extends PreferenceFragment {
                              Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
         // Inflate the layout for this fragment
+
+        Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
+        toolbar.getMenu().clear();
+
         // Set title bar
         ActionBar supportActionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
         if (supportActionBar != null) {
@@ -99,6 +132,32 @@ public class SettingsFragment extends PreferenceFragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         public void onFragmentInteraction(Uri uri);
+    }
+
+    @Override
+    public boolean onPreferenceChange(Preference preference, Object newValue) {
+        switch (preference.getKey()) {
+            case LANGUAGE_SETTING_KEY:
+                if (newValue.toString().equals("en")) {
+                    changeLanguage(Locale.ENGLISH);
+                } else {
+                    changeLanguage(Locale.CHINESE);
+                }
+                Intent intent = getActivity().getIntent();
+                getActivity().finish();
+                startActivity(intent);
+                break;
+        }
+        return true;
+    }
+
+    private void changeLanguage(Locale locale) {
+        Resources res = getResources();
+        Configuration config = res.getConfiguration();
+        config.locale = locale;
+        DisplayMetrics dm = res.getDisplayMetrics();
+        res.updateConfiguration(config, dm);
+        getActivity().sendBroadcast(new Intent("language"));
     }
 
 }
