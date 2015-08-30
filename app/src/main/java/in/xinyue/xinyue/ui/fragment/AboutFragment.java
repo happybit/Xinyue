@@ -64,7 +64,7 @@ public class AboutFragment extends Fragment {
         // Set title bar
         ActionBar supportActionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
         if (supportActionBar != null) {
-            supportActionBar.setTitle("About");
+            supportActionBar.setTitle(getActivity().getString(R.string.drawerlayout_menu_about));
             supportActionBar.setElevation(12.0f);
         }
 

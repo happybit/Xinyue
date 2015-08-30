@@ -57,7 +57,7 @@ public class SettingsFragment extends PreferenceFragment {
         ActionBar supportActionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
         if (supportActionBar != null) {
             supportActionBar.setTitle(getActivity().getString(R.string.action_settings));
-            supportActionBar.setElevation(0);
+            supportActionBar.setElevation(12.0f);
         }
         return view;
     }
