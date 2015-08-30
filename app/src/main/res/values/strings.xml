@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Xinyue</string>
 
@@ -10,6 +11,8 @@
     <!-- Strings for DrawerLayout -->
     <string name="drawerlayout_menu_home">Home</string>
     <string name="drawerlayout_menu_about">About</string>
+    <string name="drawerlayout_menu_taobao">Online Shop</string>
+    <string name="drawerlayout_menu_settings">Settings</string>
 
     <!-- Strings for menu -->
     <string name="menu_refresh">Refresh</string>
@@ -34,7 +37,20 @@
     <string name="data_connect_is_off">Data is not connected!</string>
     <string name="data_connect_is_failed">Internet connection error.</string>
 
-    <!-- Strings for AboutFragment-->
+    <!-- Strings for SettingsFragment -->
+    <string name="settings_language">Language Setting</string>
+    <string name="language_setting">Launguage</string>
+    <string-array name="pref_language_list">
+        <item>English</item>
+        <item>简体中文</item>
+    </string-array>
+    <string-array name="pref_language_values">
+        <item>en</item>
+        <item>zh</item>
+    </string-array>
+    <string name="pref_language_default_value">en</string>
+
+    <!-- Strings for AboutFragment -->
     <string name="author">Author: pzheng</string>
     <string name="website">http://www.xinyue.in</string>
     <string name="right_reserved">\u00A9 2014-2015 xinyue.in. All rights reserved.</string>
@@ -43,5 +59,8 @@
     <string name="floatingactionbutton_credit">The MIT License (MIT)\n\nCopyright (c) 2014 Oleksandr Melnykov\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</string>
     <string name="drawertemplate_credit">Copyright (c) 2014 Pedro Oliveira\n\nLicensed under the Apache License, Version 2.0</string>
     <string name="app_license">The MIT License (MIT)\n\nCopyright (c) 2012-2015 pzheng.me\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</string>
+
+<!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

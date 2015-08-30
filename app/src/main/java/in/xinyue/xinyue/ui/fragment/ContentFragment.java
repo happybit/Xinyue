@@ -504,9 +504,12 @@ public class ContentFragment extends ListFragment implements
                     loadMoreFlag = false;
                 }
 
-                Toast.makeText(getActivity(), getActivity().getResources().
-                                getString(R.string.data_connect_is_failed),
-                        Toast.LENGTH_SHORT).show();
+                if (getActivity() != null) {
+                    Toast.makeText(getActivity(), getActivity().getResources().
+                                    getString(R.string.data_connect_is_failed),
+                            Toast.LENGTH_SHORT).show();
+                }
+
             }
         });
 

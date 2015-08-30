@@ -9,6 +9,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
@@ -16,6 +17,8 @@ import android.widget.Toast;
 import in.xinyue.xinyue.R;
 import in.xinyue.xinyue.database.MySingleton;
 import in.xinyue.xinyue.ui.fragment.AboutFragment;
+import in.xinyue.xinyue.ui.fragment.ContentFragment;
+import in.xinyue.xinyue.ui.fragment.SettingsFragment;
 import in.xinyue.xinyue.ui.fragment.TabContainerFragment;
 
 public class MainActivity extends AppCompatActivity {
@@ -62,11 +65,17 @@ public class MainActivity extends AppCompatActivity {
                 switch (menuItem.getItemId()) {
                     case R.id.content_fragment:
                         fragment = TabContainerFragment.newInstance();
-                        transactFragment(fragment);
+                        transactFragment(fragment, false);
+                        return true;
+                    case R.id.taobao_fragment:
+                        return true;
+                    case R.id.settings_fragment:
+                        fragment = SettingsFragment.newInstance();
+                        transactFragment(fragment, false);
                         return true;
                     case R.id.about_fragment:
                         fragment = AboutFragment.newInstance();
-                        transactFragment(fragment);
+                        transactFragment(fragment, false);
                         return true;
                     default:
                         Toast.makeText(getApplicationContext(), "Something wrong",
@@ -97,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
         drawerLayout.setDrawerListener(actionBarDrawerToggle);
 
         Fragment fragment = TabContainerFragment.newInstance();
-        transactFragment(fragment);
+        transactFragment(fragment, true);
     }
 
     @Override
@@ -107,11 +116,12 @@ public class MainActivity extends AppCompatActivity {
         actionBarDrawerToggle.syncState();
     }
 
-    private void transactFragment(Fragment fragment) {
+
+    private void transactFragment(Fragment fragment, boolean isFirstTimeLaunch) {
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.frame, fragment);
 
-        if (fragmentManager.getBackStackEntryCount() > 1) {
+        if (!isFirstTimeLaunch) {
             fragmentTransaction.addToBackStack(null);
         }
 
@@ -139,10 +149,25 @@ public class MainActivity extends AppCompatActivity {
     public void onBackPressed() {
         if (drawerLayout.isDrawerOpen(navigationView))
             drawerLayout.closeDrawer(navigationView);
-        else if (fragmentManager.getBackStackEntryCount() > 1) {
-            fragmentManager.popBackStack();
-        } else
+        //else if (fragmentManager.getBackStackEntryCount() > 1) {
+        //    fragmentManager.popBackStack();
+        //}
+        else
             super.onBackPressed();
+
+        // set current item checked after backPressed.
+        int menuItemId;
+        Fragment f = fragmentManager.findFragmentById(R.id.frame);
+        Log.d("XinyueLog", "Current fragment is " + f.toString());
+        if (f instanceof SettingsFragment) {
+            menuItemId = R.id.settings_fragment;
+        } else if (f instanceof AboutFragment) {
+            menuItemId = R.id.about_fragment;
+        } else {
+            menuItemId = R.id.content_fragment;
+        }
+
+        navigationView.getMenu().findItem(menuItemId).setChecked(true);
     }
 
     @Override

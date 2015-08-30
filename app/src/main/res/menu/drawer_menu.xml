@@ -8,6 +8,14 @@
             android:icon="@drawable/ic_grade_black_18dp"
             android:title="@string/drawerlayout_menu_home"/>
         <item
+            android:id="@+id/taobao_fragment"
+            android:icon="@drawable/ic_grade_black_18dp"
+            android:title="@string/drawerlayout_menu_taobao"/>
+        <item
+            android:id="@+id/settings_fragment"
+            android:icon="@drawable/ic_grade_black_18dp"
+            android:title="@string/drawerlayout_menu_settings"/>
+        <item
             android:id="@+id/about_fragment"
             android:icon="@drawable/ic_info_outline_black_18dp"
             android:title="@string/drawerlayout_menu_about" />
