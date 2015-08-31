@@ -1,8 +1,12 @@
 package in.xinyue.xinyue.ui;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -11,15 +15,17 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import java.util.Locale;
+
 import in.xinyue.xinyue.R;
 import in.xinyue.xinyue.database.MySingleton;
 import in.xinyue.xinyue.ui.fragment.AboutFragment;
-import in.xinyue.xinyue.ui.fragment.ContentFragment;
 import in.xinyue.xinyue.ui.fragment.SettingsFragment;
 import in.xinyue.xinyue.ui.fragment.TabContainerFragment;
 
@@ -32,9 +38,16 @@ public class MainActivity extends AppCompatActivity {
     private ActionBarDrawerToggle actionBarDrawerToggle;
     FragmentManager fragmentManager = getSupportFragmentManager();
 
+    private SharedPreferences sharedPref;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        String selectedLanguage = sharedPref.getString(SettingsFragment.LANGUAGE_SETTING_KEY, null);
+        if (selectedLanguage != null)
+            setLocale(selectedLanguage);
+
         setContentView(R.layout.activity_main);
 
         // Initializing Toolbar and setting it as the actionbar
@@ -111,6 +124,26 @@ public class MainActivity extends AppCompatActivity {
 
         Fragment fragment = TabContainerFragment.newInstance();
         transactFragment(fragment, true);
+    }
+
+    private void setLocale(String selectedLanguage) {
+        if (selectedLanguage.equals("en")) {
+            changeLanguage(Locale.ENGLISH);
+        } else if (selectedLanguage.equals("zh")) {
+            changeLanguage(Locale.CHINESE);
+        } else {
+            Toast.makeText(getApplicationContext(), "No such locale: " + selectedLanguage,
+                    Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void changeLanguage(Locale locale) {
+        Locale.setDefault(locale);
+        Resources res = getResources();
+        Configuration config = res.getConfiguration();
+        config.locale = locale;
+        DisplayMetrics dm = res.getDisplayMetrics();
+        res.updateConfiguration(config, dm);
     }
 
     private void startTaobaoActivity() {

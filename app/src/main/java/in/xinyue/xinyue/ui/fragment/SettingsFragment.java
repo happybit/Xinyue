@@ -37,7 +37,7 @@ public class SettingsFragment extends PreferenceFragment
     private OnFragmentInteractionListener mListener;
 
     private ListPreference languageSetting;
-    private static final String LANGUAGE_SETTING_KEY = "pref_key_language";
+    public static final String LANGUAGE_SETTING_KEY = "pref_key_language";
 
     /**
      * Use this factory method to create a new instance of
@@ -152,6 +152,7 @@ public class SettingsFragment extends PreferenceFragment
     }
 
     private void changeLanguage(Locale locale) {
+        Locale.setDefault(locale);
         Resources res = getResources();
         Configuration config = res.getConfiguration();
         config.locale = locale;
