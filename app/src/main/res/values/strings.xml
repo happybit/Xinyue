@@ -8,6 +8,9 @@
     <string name="openDrawer">OpenDrawer</string>
     <string name="closeDrawer">CloseDrawer</string>
 
+    <!-- Strings for Post Detail Activity -->
+    <string name="post_share">Share</string>
+
     <!-- Strings for DrawerLayout -->
     <string name="drawerlayout_menu_home">Home</string>
     <string name="drawerlayout_menu_about">About</string>
