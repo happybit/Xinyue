@@ -71,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
                         return true;
                     case R.id.taobao_fragment:
                         startTaobaoActivity();
+                        setDrawerMenuChecked();
                         return true;
                     case R.id.settings_fragment:
                         fragment = SettingsFragment.newInstance();
@@ -163,9 +164,14 @@ public class MainActivity extends AppCompatActivity {
         //else if (fragmentManager.getBackStackEntryCount() > 1) {
         //    fragmentManager.popBackStack();
         //}
-        else
+        else {
             super.onBackPressed();
+            setDrawerMenuChecked();
+        }
 
+    }
+
+    private void setDrawerMenuChecked() {
         // set current item checked after backPressed.
         int menuItemId;
         Fragment f = fragmentManager.findFragmentById(R.id.frame);
