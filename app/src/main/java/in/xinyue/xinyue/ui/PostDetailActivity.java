@@ -24,7 +24,7 @@ import in.xinyue.xinyue.swipeback.SwipeBackActivity;
 public class PostDetailActivity extends SwipeBackActivity {
 
     private Toolbar toolbar;
-    //private TextView mPostTitle;
+    private TextView mPostTitle;
     private TextView mPostCategory;
     private TextView mPostContent;
     private String mWebUrl;
@@ -46,7 +46,9 @@ public class PostDetailActivity extends SwipeBackActivity {
             getSupportActionBar().setElevation(12.0f);
         }
 
-        //mPostTitle = (TextView) findViewById(R.id.post_title);
+        setTitle(getResources().getString(R.string.post_detail_title));
+
+        mPostTitle = (TextView) findViewById(R.id.post_title);
         mPostCategory = (TextView) findViewById(R.id.post_category);
         mPostContent = (TextView) findViewById(R.id.post_content);
         mWebUrl = "http://www.xinyue.in";
@@ -72,6 +74,7 @@ public class PostDetailActivity extends SwipeBackActivity {
     private void fillData(Uri uri) {
         String[] projection = {PostReaderContract.PostTable.COLUMN_NAME_TITLE,
                 PostReaderContract.PostTable.COLUMN_NAME_CATEGORY,
+                PostReaderContract.PostTable.COLUMN_NAME_CREATED_DATE,
                 PostReaderContract.PostTable.COLUMN_NAME_LINK,
                 PostReaderContract.PostTable.COLUMN_NAME_CONTENT};
 
@@ -83,20 +86,21 @@ public class PostDetailActivity extends SwipeBackActivity {
             Log.d("XinyueLog", "cursor is not null");
 
             cursor.moveToFirst();
-            //mPostTitle.setText(cursor.getString(cursor.
-            //        getColumnIndexOrThrow(PostReaderContract.PostTable.COLUMN_NAME_TITLE)));
-
-            mWebUrl = cursor.getString(cursor.getColumnIndexOrThrow(PostReaderContract
-                    .PostTable.COLUMN_NAME_LINK));
-            mPostCategory.setText(getCategoryName(cursor.getString(cursor
-                    .getColumnIndexOrThrow(PostReaderContract.PostTable.COLUMN_NAME_CATEGORY))));
-            mPostContent.setText(Html.fromHtml(cursor.getString(cursor.
-                            getColumnIndexOrThrow(PostReaderContract.PostTable.COLUMN_NAME_CONTENT)),
-                    new UILImageGetter(mPostContent, this), null));
 
             title = cursor.getString(cursor.
                     getColumnIndexOrThrow(PostReaderContract.PostTable.COLUMN_NAME_TITLE));
-            setTitle(title);
+            mPostTitle.setText(title);
+
+            String createdDate = cursor.getString(cursor.getColumnIndexOrThrow(PostReaderContract
+                    .PostTable.COLUMN_NAME_CREATED_DATE));
+            mWebUrl = cursor.getString(cursor.getColumnIndexOrThrow(PostReaderContract
+                    .PostTable.COLUMN_NAME_LINK));
+            mPostCategory.setText(getCategoryName(cursor.getString(cursor
+                    .getColumnIndexOrThrow(PostReaderContract.PostTable.COLUMN_NAME_CATEGORY)),
+                    createdDate));
+            mPostContent.setText(Html.fromHtml(cursor.getString(cursor.
+                            getColumnIndexOrThrow(PostReaderContract.PostTable.COLUMN_NAME_CONTENT)),
+                    new UILImageGetter(mPostContent, this), null));
 
             Log.d("XinyueLog", "title is " + cursor.getString(cursor.
                     getColumnIndexOrThrow(PostReaderContract.PostTable.COLUMN_NAME_TITLE)));
@@ -111,7 +115,7 @@ public class PostDetailActivity extends SwipeBackActivity {
 
     }
 
-    private String getCategoryName(String categoryString) {
+    private String getCategoryName(String categoryString, String date) {
         StringBuilder categoryName = new StringBuilder();
         String[] categoryArray = getResources().getStringArray(R.array.categories);
         if (categoryString.contains("earrings")) {
@@ -130,18 +134,18 @@ public class PostDetailActivity extends SwipeBackActivity {
             categoryName.append(getResources().getString(R.string.category_others));
         }
 
-        return getResources().getString(R.string.category) + ": " + categoryName.toString();
+        date = date.replace("T", " ");
+
+        return date + "\n" +
+                getResources().getString(R.string.category) + ": " + categoryName.toString();
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_post_detail, menu);
-
         MenuItem item = menu.findItem(R.id.menu_item_share);
-
         shareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(item);
-
         setShareIntent(createShareIntent());
 
         return true;

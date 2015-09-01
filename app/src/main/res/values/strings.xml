@@ -9,6 +9,7 @@
     <string name="closeDrawer">CloseDrawer</string>
 
     <!-- Strings for Post Detail Activity -->
+    <string name="post_detail_title">Detail</string>
     <string name="post_share">Share</string>
     <string name="share_indication">Here is a beautiful jewelry from Xinyue. Please check it out at&#160;</string>
 

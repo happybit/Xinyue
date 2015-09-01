@@ -9,6 +9,7 @@
     <string name="closeDrawer">CloseDrawer</string>
 
     <!-- Strings for Post Detail Activity -->
+    <string name="post_detail_title">详情</string>
     <string name="post_share">分享</string>
     <string name="share_indication">我在“新月”上发现一件漂亮的首饰，链接在此 --&#160;</string>
 
@@ -32,7 +33,7 @@
         <item>胸针</item>
     </string-array>
     <string name="category_others">其他</string>
-    <string name="category">品类</string>
+    <string name="category">分类</string>
 
     <!-- Strings for listview connecting indication -->
     <string name="footer_fail_indication">连接失败，请点击重试。</string>
