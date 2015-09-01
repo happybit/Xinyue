@@ -457,9 +457,9 @@ public class ContentFragment extends ListFragment implements
                         String cover;
                         if (post.getFeatured_image() != null) {
                             cover = post.getFeatured_image().
-                                    getAttachment_meta().getSizes().getMedium().getUrl();
+                                    getSource();
                         } else {
-                            cover = "drawable://" + R.drawable.reminder;
+                            cover = "drawable://" + R.drawable.fail_empty_image;
                         }
 
                         String content = post.getContent();
