@@ -26,6 +26,14 @@ public class DisplayCreditsActivity extends SwipeBackActivity {
             getSupportActionBar().setElevation(12.0f);
         }
 
+        setTitle(getResources().getString(R.string.about_credits));
+
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        overridePendingTransition(R.anim.left_to_right, R.anim.right_to_left);
     }
 
 }

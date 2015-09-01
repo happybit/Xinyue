@@ -2,6 +2,7 @@ package in.xinyue.xinyue.ui.fragment;
 
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
@@ -72,12 +73,35 @@ public class AboutFragment extends Fragment {
         TextView originTextView = (TextView) view.findViewById(R.id.origin);
         TextView mailTextView = (TextView) view.findViewById(R.id.mail);
         TextView weiboTextView = (TextView) view.findViewById(R.id.weibo);
-        TextView creditsextView = (TextView) view.findViewById(R.id.credits);
+        TextView creditsTextView = (TextView) view.findViewById(R.id.credits);
 
-        creditsextView.setOnClickListener(new View.OnClickListener() {
+        creditsTextView.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), DisplayCreditsActivity.class);
                 startActivity(intent);
+                getActivity().overridePendingTransition(R.anim.enter, R.anim.exit);
+            }
+        });
+
+        mailTextView.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Intent intent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
+                        "mailto", "zehuipan@163.com", null));
+                if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
+                    startActivity(Intent.createChooser(intent,
+                            getActivity().getResources().getString(R.string.send_mail_indication)));
+                }
+            }
+        });
+
+        weiboTextView.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Uri weiboLink = Uri.parse("http://weibo.cn/qr/userinfo?uid=2863983581");
+                Intent intent = new Intent(Intent.ACTION_VIEW, weiboLink);
+                if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
+                    startActivity(Intent.createChooser(intent,
+                            getActivity().getResources().getString(R.string.view_weibo_indication)));
+                }
             }
         });
 
