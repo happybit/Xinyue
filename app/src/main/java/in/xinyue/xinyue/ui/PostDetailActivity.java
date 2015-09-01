@@ -28,6 +28,7 @@ public class PostDetailActivity extends SwipeBackActivity {
     private TextView mPostCategory;
     private TextView mPostContent;
     private String mWebUrl;
+    private String title;
     private ShareActionProvider shareActionProvider;
 
     private Uri postUri;
@@ -84,16 +85,18 @@ public class PostDetailActivity extends SwipeBackActivity {
             cursor.moveToFirst();
             //mPostTitle.setText(cursor.getString(cursor.
             //        getColumnIndexOrThrow(PostReaderContract.PostTable.COLUMN_NAME_TITLE)));
+
             mWebUrl = cursor.getString(cursor.getColumnIndexOrThrow(PostReaderContract
                     .PostTable.COLUMN_NAME_LINK));
             mPostCategory.setText(getCategoryName(cursor.getString(cursor
                     .getColumnIndexOrThrow(PostReaderContract.PostTable.COLUMN_NAME_CATEGORY))));
             mPostContent.setText(Html.fromHtml(cursor.getString(cursor.
-                    getColumnIndexOrThrow(PostReaderContract.PostTable.COLUMN_NAME_CONTENT)),
+                            getColumnIndexOrThrow(PostReaderContract.PostTable.COLUMN_NAME_CONTENT)),
                     new UILImageGetter(mPostContent, this), null));
 
-            setTitle(cursor.getString(cursor.
-                    getColumnIndexOrThrow(PostReaderContract.PostTable.COLUMN_NAME_TITLE)));
+            title = cursor.getString(cursor.
+                    getColumnIndexOrThrow(PostReaderContract.PostTable.COLUMN_NAME_TITLE));
+            setTitle(title);
 
             Log.d("XinyueLog", "title is " + cursor.getString(cursor.
                     getColumnIndexOrThrow(PostReaderContract.PostTable.COLUMN_NAME_TITLE)));
@@ -145,9 +148,10 @@ public class PostDetailActivity extends SwipeBackActivity {
     }
 
     private Intent createShareIntent() {
+        String shareIndication = getResources().getString(R.string.share_indication);
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.setType("text/plain");
-        shareIntent.putExtra(Intent.EXTRA_TEXT, mWebUrl);
+        shareIntent.putExtra(Intent.EXTRA_TEXT, shareIndication + mWebUrl + " " + title);
         return shareIntent;
     }
 

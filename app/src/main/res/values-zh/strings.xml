@@ -10,6 +10,7 @@
 
     <!-- Strings for Post Detail Activity -->
     <string name="post_share">分享</string>
+    <string name="share_indication">我在“新月”上发现一件漂亮的首饰，链接在此 --&#160;</string>
 
     <!-- Strings for DrawerLayout -->
     <string name="drawerlayout_menu_home">产品</string>
