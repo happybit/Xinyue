@@ -5,9 +5,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
 import in.xinyue.xinyue.R;
+import in.xinyue.xinyue.swipeback.SwipeBackActivity;
 
 
-public class DisplayCreditsActivity extends AppCompatActivity {
+public class DisplayCreditsActivity extends SwipeBackActivity {
     private Toolbar toolbar;
 
     @Override
@@ -19,6 +20,11 @@ public class DisplayCreditsActivity extends AppCompatActivity {
         // Initializing Toolbar and setting it as the actionbar
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setElevation(12.0f);
+        }
 
     }
 

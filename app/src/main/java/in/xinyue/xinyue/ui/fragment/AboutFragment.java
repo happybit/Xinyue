@@ -13,6 +13,7 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 
 import in.xinyue.xinyue.R;
 import in.xinyue.xinyue.ui.DisplayCreditsActivity;
@@ -68,21 +69,14 @@ public class AboutFragment extends Fragment {
             supportActionBar.setElevation(12.0f);
         }
 
-        Button creditsButton = (Button) view.findViewById(R.id.credits_button);
-        Button licenseButton = (Button) view.findViewById(R.id.license_button);
+        TextView originTextView = (TextView) view.findViewById(R.id.origin);
+        TextView mailTextView = (TextView) view.findViewById(R.id.mail);
+        TextView weiboTextView = (TextView) view.findViewById(R.id.weibo);
+        TextView creditsextView = (TextView) view.findViewById(R.id.credits);
 
-        creditsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
+        creditsextView.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), DisplayCreditsActivity.class);
-                startActivity(intent);
-            }
-        });
-
-        licenseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), DisplayLicenseActivity.class);
                 startActivity(intent);
             }
         });

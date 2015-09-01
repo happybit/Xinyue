@@ -56,6 +56,13 @@
     <string name="pref_language_default_value">en</string>
 
     <!-- Strings for AboutFragment-->
+    <string name="about_since">起始</string>
+    <string name="about_since_date">2012.10</string>
+    <string name="about_origin">缘于</string>
+    <string name="about_credits">许可</string>
+    <string name="about_mail">邮箱</string>
+    <string name="about_weibo">微博</string>
+
     <string name="author">Author: pzheng</string>
     <string name="website">http://www.xinyue.in</string>
     <string name="right_reserved">\u00A9 2014-2015 xinyue.in. All rights reserved.</string>
