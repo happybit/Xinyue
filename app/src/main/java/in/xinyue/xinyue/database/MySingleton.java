@@ -38,6 +38,8 @@ public class MySingleton {
     }
 
     public static void cancelAll(Object tag) {
-        mRequestQueue.cancelAll(tag);
+        if (mRequestQueue != null) {
+            mRequestQueue.cancelAll(tag);
+        }
     }
 }
