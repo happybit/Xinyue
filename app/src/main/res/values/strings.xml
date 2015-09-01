@@ -64,6 +64,10 @@
     <string name="about_weibo">Weibo</string>
     <string name="send_mail_indication">Send mail...</string>
     <string name="view_weibo_indication">View Weibo...</string>
+    <string name="about_designer">Designer</string>
+    <string name="about_designer_name">Pan Zehui</string>
+
+    <string name="origin_content">古人爱石历有传统。\n\n石之美者为玉。\n\n玉乃天然生命体，于是便有万千姿色。\n\n昔米公以瘦，漏，透，皱评石兄，今我于万千中寻所爱，便效以恬，逸，和为则。\n\n恬者，质地细腻，色净光柔；仿佛佳人，在水一方，婉约缈缈，雾幔习习。\n\n逸者，色泽鲜丽，质透光澈；灼若芙蕖出碧水，素似青云穿淡月，不沾一尘。\n\n和者，必是种老色浓光幽；蕴老辣，化平淡，然来去间皆有甘味。\n\n三者之美各有其境，而成境在心。\n\n我寻其美者，愿此美融于生活，便尝试它以初始之性待人，望君能感之；感之并喜悦，更妙。\n\n故，新月初也。</string>
 
     <string name="author">Author: pzheng</string>
     <string name="website">http://www.xinyue.in</string>
@@ -76,5 +80,7 @@
 
 <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_display_origin">DisplayOriginActivity</string>
+
 
 </resources>

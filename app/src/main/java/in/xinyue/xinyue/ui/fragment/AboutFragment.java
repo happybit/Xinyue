@@ -9,16 +9,13 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
 
 import in.xinyue.xinyue.R;
 import in.xinyue.xinyue.ui.DisplayCreditsActivity;
-import in.xinyue.xinyue.ui.DisplayLicenseActivity;
+import in.xinyue.xinyue.ui.DisplayOriginActivity;
 
 
 /**
@@ -74,6 +71,14 @@ public class AboutFragment extends Fragment {
         TextView mailTextView = (TextView) view.findViewById(R.id.mail);
         TextView weiboTextView = (TextView) view.findViewById(R.id.weibo);
         TextView creditsTextView = (TextView) view.findViewById(R.id.credits);
+
+        originTextView.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), DisplayOriginActivity.class);
+                startActivity(intent);
+                getActivity().overridePendingTransition(R.anim.enter, R.anim.exit);
+            }
+        });
 
         creditsTextView.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
