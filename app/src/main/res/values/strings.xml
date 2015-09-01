@@ -55,6 +55,9 @@
     </string-array>
     <string name="pref_language_default_value">en</string>
 
+    <string name="settings_cache">Cache</string>
+    <string name="cache_setting">Clear Cache</string>
+
     <!-- Strings for AboutFragment -->
     <string name="about_since">Since</string>
     <string name="about_since_date">2012.10</string>
