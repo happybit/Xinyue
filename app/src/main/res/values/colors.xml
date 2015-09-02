@@ -7,7 +7,7 @@
     <color name="PrimaryColor">#607D8B</color>
     <color name="LightPrimaryColor">#CFD8DC</color>
     <color name="TextIcons">#FFFFFF</color>
-    <color name="AccentColor">#795548</color>
+    <color name="AccentColor">#212121</color>
     <color name="PrimaryText">#212121</color>
     <color name="SecondaryText">#727272</color>
     <color name="DividerColor">#B6B6B6</color>

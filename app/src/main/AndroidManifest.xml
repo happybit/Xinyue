@@ -41,6 +41,10 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="in.xinyue.xinyue.ui.MainActivity" />
         </activity>
+        <activity
+            android:name=".ui.DisplayOriginActivity"
+            android:label="@string/title_activity_display_origin" >
+    </activity>
     </application>
 
 </manifest>
