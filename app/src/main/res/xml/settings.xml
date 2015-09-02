@@ -16,7 +16,7 @@
     <PreferenceCategory
         android:title="@string/settings_cache"
         android:key="pref_cache">
-        <EditTextPreference
+        <Preference
             android:key="pref_key_cache"
             android:title="@string/cache_setting"/>
     </PreferenceCategory>
