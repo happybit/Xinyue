@@ -77,6 +77,7 @@ public class ContentFragment extends ListFragment implements
     private View contentView;
 
     private boolean loadMoreFlag = false;
+    private boolean refreshFlag = false;
 
     public static final String EXTRA_CATEGORY = "extra_category";
     public static final String EXTRA_PAGE = "extra_page";
@@ -150,6 +151,7 @@ public class ContentFragment extends ListFragment implements
         refreshLayout.setOnRefreshListener(new RefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                refreshFlag = true;
                 loadNext(FIRST_PAGE_NUMBER);
             }
         });
@@ -210,7 +212,8 @@ public class ContentFragment extends ListFragment implements
     }
 
     private void fillData() {
-        String[] from = new String[] {PostReaderContract.PostTable.COLUMN_NAME_TITLE, PostReaderContract.PostTable.COLUMN_NAME_COVER};
+        String[] from = new String[] {PostReaderContract.PostTable.COLUMN_NAME_TITLE,
+                PostReaderContract.PostTable.COLUMN_NAME_COVER};
         int[] to = new int[] {R.id.title, R.id.cover};
 
         adapter = new SimpleCursorAdapter(getActivity(), R.layout.post_row, null, from, to, 0);
@@ -296,10 +299,14 @@ public class ContentFragment extends ListFragment implements
         }
         String[] selectionArgs = new String[] {"%"+categoryMatchString+"%"};
 
+        String limitPostNumber = (refreshFlag) ?
+                ("") : (" LIMIT " + String.valueOf(Integer.valueOf(pageNum)*10));
+
         Log.d("XinyueLog", "create loader for category: " + mCategory.getDisplayName());
         return (new CursorLoader(getActivity(),
                 PostContentProvider.CONTENT_URI, projection, selection, selectionArgs,
-                PostReaderContract.PostTable.COLUMN_NAME_CREATED_DATE + " DESC") {
+                PostReaderContract.PostTable.
+                        COLUMN_NAME_CREATED_DATE + " DESC" + limitPostNumber) {
             @Override
             public Cursor loadInBackground() {
                 Cursor c = super.loadInBackground();
@@ -337,6 +344,8 @@ public class ContentFragment extends ListFragment implements
 
                 }
 
+                refreshFlag = false;
+
                 return c;
             }
         });
@@ -354,6 +363,7 @@ public class ContentFragment extends ListFragment implements
         if (id == R.id.refresh) {
             mListView.smoothScrollToPosition(0);
             refreshLayout.setRefreshing(true);
+            refreshFlag = true;
             loadNext(FIRST_PAGE_NUMBER);
             return true;
         }
