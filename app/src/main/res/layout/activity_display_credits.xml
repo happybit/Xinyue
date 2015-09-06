@@ -20,44 +20,120 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
+            <!-- volley -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="FloatingActionButton"
+                android:text="@string/lib_volley"
                 android:textStyle="bold"/>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="https://github.com/makovkastar/FloatingActionButton"
-                android:autoLink="web"
-                android:paddingBottom="10sp"/>
+                android:text="@string/url_volley"
+                android:autoLink="web"/>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/floatingactionbutton_credit"
-                android:background="@color/selected_gray"/>
+                android:text="@string/license_volley"
+                android:paddingBottom="15sp"/>
+
+            <!-- universal image loader -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/lib_uil"
+                android:textStyle="bold"/>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="android-material-drawer-template"
-                android:textStyle="bold"
-                android:paddingTop="20sp"/>
+                android:text="@string/url_uil"
+                android:autoLink="web"/>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="https://github.com/kanytu/android-material-drawer-template"
-                android:autoLink="web"
-                android:paddingBottom="10sp"/>
+                android:text="@string/license_uil"
+                android:paddingBottom="15sp"/>
+
+            <!-- Gson -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/lib_gson"
+                android:textStyle="bold"/>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/drawertemplate_credit"
-                android:background="@color/selected_gray"/>
+                android:text="@string/url_gson"
+                android:autoLink="web"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/license_gson"
+                android:paddingBottom="15sp"/>
+
+            <!-- SwipeBackLayout -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/lib_swipebacklayout"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/url_swipebacklayout"
+                android:autoLink="web"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/license_swipebacklayout"
+                android:paddingBottom="15sp"/>
+
+            <!-- SwipeRefreshLayout -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/lib_swiperefreshlayout"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/url_swiperefreshlayout"
+                android:autoLink="web"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/license_swiperefreshlayout"
+                android:paddingBottom="15sp"/>
+
+            <!-- PreferenceFragment -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/lib_preferencefragment"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/url_preferencefragment"
+                android:autoLink="web"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/license_preferencefragment"
+                android:paddingBottom="15sp"/>
+
         </LinearLayout>
 
     </ScrollView>

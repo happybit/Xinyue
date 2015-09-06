@@ -69,16 +69,38 @@
     <string name="view_weibo_indication">打开微博...</string>
     <string name="about_designer">设计师</string>
     <string name="about_designer_name">潘泽慧</string>
+    <string name="right_reserved">\u00A9 2014-2015 xinyue.in. All rights reserved.</string>
 
+    <!-- Strings for credits activity -->
+    <string name="title_activity_display_credits">Credits</string>
+
+    <string name="lib_volley">Volley</string>
+    <string name="url_volley">https://android.googlesource.com/platform/frameworks/volley/</string>
+    <string name="license_volley">Licensed under the Apache License, Version 2.0 (the "License");</string>
+
+    <string name="lib_uil">Universal Image Loader</string>
+    <string name="url_uil">https://github.com/nostra13/Android-Universal-Image-Loader</string>
+    <string name="license_uil">Licensed under the Apache License, Version 2.0 (the "License");</string>
+
+    <string name="lib_gson">Gson</string>
+    <string name="url_gson">https://github.com/google/gson</string>
+    <string name="license_gson">Licensed under the Apache License, Version 2.0 (the "License");</string>
+
+    <string name="lib_swipebacklayout">SwipeBackLayout</string>
+    <string name="url_swipebacklayout">https://github.com/yrom/SwipeBackLayout</string>
+    <string name="license_swipebacklayout">Licensed under the Apache License, Version 2.0 (the "License");</string>
+
+    <string name="lib_swiperefreshlayout">SwipeRefreshLayout</string>
+    <string name="url_swiperefreshlayout">https://github.com/Demievil/SwipeRefreshLayout</string>
+    <string name="license_swiperefreshlayout">Licensed under the Apache License, Version 2.0 (the "License");</string>
+
+    <string name="lib_preferencefragment">PreferenceFragment.java</string>
+    <string name="url_preferencefragment">https://gist.github.com/cbeyls/7475726</string>
+    <string name="license_preferencefragment">N/A</string>
+
+    <!-- Strings for credits activity -->
+    <string name="title_activity_display_origin">DisplayOriginActivity</string>
     <string name="origin_content">古人爱石历有传统。\n\n石之美者为玉。\n\n玉乃天然生命体，于是便有万千姿色。\n\n昔米公以瘦，漏，透，皱评石兄，今我于万千中寻所爱，便效以恬，逸，和为则。\n\n恬者，质地细腻，色净光柔；仿佛佳人，在水一方，婉约缈缈，雾幔习习。\n\n逸者，色泽鲜丽，质透光澈；灼若芙蕖出碧水，素似青云穿淡月，不沾一尘。\n\n和者，必是种老色浓光幽；蕴老辣，化平淡，然来去间皆有甘味。\n\n三者之美各有其境，而成境在心。\n\n我寻其美者，愿此美融于生活，便尝试它以初始之性待人，望君能感之；感之并喜悦，更妙。\n\n故，新月初也。</string>
 
-    <string name="author">Author: pzheng</string>
-    <string name="website">http://www.xinyue.in</string>
-    <string name="right_reserved">\u00A9 2014-2015 xinyue.in. All rights reserved.</string>
-    <string name="title_activity_display_credits">Credits</string>
-    <string name="title_activity_display_license">License</string>
-    <string name="floatingactionbutton_credit">The MIT License (MIT)\n\nCopyright (c) 2014 Oleksandr Melnykov\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</string>
-    <string name="drawertemplate_credit">Copyright (c) 2014 Pedro Oliveira\n\nLicensed under the Apache License, Version 2.0</string>
-    <string name="app_license">The MIT License (MIT)\n\nCopyright (c) 2012-2015 pzheng.me\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</string>
 
 </resources>
