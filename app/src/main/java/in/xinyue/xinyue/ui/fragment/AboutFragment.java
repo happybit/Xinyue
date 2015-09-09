@@ -9,6 +9,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -58,7 +59,9 @@ public class AboutFragment extends Fragment {
         final View view = inflater.inflate(R.layout.fragment_about, container, false);
 
         Toolbar toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
-        toolbar.getMenu().clear();
+        if (toolbar != null) {
+            toolbar.getMenu().clear();
+        }
 
         // Set title bar
         ActionBar supportActionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
