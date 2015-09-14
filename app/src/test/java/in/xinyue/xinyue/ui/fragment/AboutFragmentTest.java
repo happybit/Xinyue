@@ -39,7 +39,7 @@ public class AboutFragmentTest {
         if (view == null) {
             return;
         }
-        
+
         fragment.getView().findViewById(viewID).performClick();
         Intent expectedIntent = new Intent(fragment.getActivity(), cls);
         assertThat(shadowOf(fragment.getActivity()).getNextStartedActivity()).isEqualTo(expectedIntent);
