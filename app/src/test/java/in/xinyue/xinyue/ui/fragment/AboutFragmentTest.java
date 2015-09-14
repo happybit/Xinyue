@@ -1,9 +1,10 @@
 package in.xinyue.xinyue.ui.fragment;
 
 import android.content.Intent;
+import android.net.Uri;
+import android.view.View;
 
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricGradleTestRunner;
@@ -19,15 +20,12 @@ import in.xinyue.xinyue.ui.MainActivity;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.robolectric.Shadows.shadowOf;
 
-/**
- * Created by pzheng on 9/6/2015.
- */
 
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(constants = BuildConfig.class)
 public class AboutFragmentTest {
 
-    AboutFragment fragment;
+    private AboutFragment fragment;
 
     @Before
     public void setUp() {
@@ -35,19 +33,27 @@ public class AboutFragmentTest {
         SupportFragmentTestUtil.startVisibleFragment(fragment, MainActivity.class, R.id.frame);
     }
 
+    private void checkRelationBetweenViewAndNextActivity(int viewID, Class<?> cls) {
+        View view = fragment.getView();
+
+        if (view == null) {
+            return;
+        }
+        
+        fragment.getView().findViewById(viewID).performClick();
+        Intent expectedIntent = new Intent(fragment.getActivity(), cls);
+        assertThat(shadowOf(fragment.getActivity()).getNextStartedActivity()).isEqualTo(expectedIntent);
+    }
+
     @Test
     public void clickOrigin_shouldStartDisplayOriginActivity() {
-        fragment.getView().findViewById(R.id.origin).performClick();
-
-        Intent expectedIntent = new Intent(fragment.getActivity(), DisplayOriginActivity.class);
-        assertThat(shadowOf(fragment.getActivity()).getNextStartedActivity()).isEqualTo(expectedIntent);
+        checkRelationBetweenViewAndNextActivity(R.id.origin, DisplayOriginActivity.class);
     }
 
     @Test
     public void clickCredits_shouldStartDisplayCreditsActivity() {
-        fragment.getView().findViewById(R.id.credits).performClick();
-
-        Intent expectedIntent = new Intent(fragment.getActivity(), DisplayCreditsActivity.class);
-        assertThat(shadowOf(fragment.getActivity()).getNextStartedActivity()).isEqualTo(expectedIntent);
+        checkRelationBetweenViewAndNextActivity(R.id.credits, DisplayCreditsActivity.class);
     }
+
+
 }

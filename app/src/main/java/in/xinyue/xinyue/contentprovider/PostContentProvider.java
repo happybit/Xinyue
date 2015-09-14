@@ -132,6 +132,14 @@ public class PostContentProvider extends ContentProvider {
             values.put(PostTable.COLUMN_NAME_CATEGORY, "all");
         }
 
+        if (!values.containsKey(PostTable.COLUMN_NAME_LINK)) {
+            throw new IllegalArgumentException("Post link not specified");
+        }
+
+        if (!values.containsKey(PostTable.COLUMN_NAME_CREATED_DATE)) {
+            throw new IllegalArgumentException("Post created date not specified");
+        }
+
         if (!values.containsKey(PostTable.COLUMN_NAME_COVER)) {
             throw new IllegalArgumentException("Post cover not specified");
         }
