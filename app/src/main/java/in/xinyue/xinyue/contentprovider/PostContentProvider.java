@@ -8,7 +8,10 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.support.annotation.NonNull;
+
 import in.xinyue.xinyue.database.PostDatabaseHelper;
+import in.xinyue.xinyue.database.PostReaderContract;
 import in.xinyue.xinyue.database.PostReaderContract.PostTable;
 
 public class PostContentProvider extends ContentProvider {
@@ -60,32 +63,16 @@ public class PostContentProvider extends ContentProvider {
             throw new UnsupportedOperationException("Unknown URI " + uri);
         }
 
-        ContentValues contentValues;
-        if (values != null) {
-            contentValues = new ContentValues(values);
-        } else {
-            contentValues = new ContentValues();
-        }
-
         mDb = mDbHelper.getWritableDatabase();
-        return insert(uri, contentValues, mDb);
-    }
 
-    public Uri insert(Uri uri, ContentValues values, SQLiteDatabase db) {
-        verifyValues(values);
+        ContentValues contentValues = getContentValues(values);
+        verifyValues(contentValues);
+        String postID = (String) contentValues.get(PostTable.COLUMN_NAME_POST_ID);
+        Long rowID = findPostRowID(mDb, postID);
 
-        // Validate the requested uri
-        int m = sUriMatcher.match(uri);
-        if (m != POSTS) {
-            throw new IllegalArgumentException("Unknown URI " + uri);
-        }
-
-        // insert the values into a new database row
-        String postID = (String) values.get(PostTable.COLUMN_NAME_POST_ID);
-
-        Long rowID = postRowID(db, postID);
+        // If not found duplicated row, then insert database
         if (rowID == null) {
-            long newRowID = mDb.insert(PostTable.TABLE_NAME, null, values);
+            long newRowID = mDb.insert(PostTable.TABLE_NAME, null, contentValues);
             if (newRowID >= 0) {
                 Uri insertUri = ContentUris.withAppendedId(CONTENT_URI, newRowID);
                 getContext().getContentResolver().notifyChange(insertUri, null);
@@ -93,13 +80,24 @@ public class PostContentProvider extends ContentProvider {
             }
 
             throw new IllegalStateException("Could not insert " +
-                    "content values: " + values);
+                    "content values: " + contentValues);
         }
 
         return ContentUris.withAppendedId(CONTENT_URI, rowID);
     }
 
-    private Long postRowID(SQLiteDatabase db, String postID) {
+    @NonNull
+    private ContentValues getContentValues(ContentValues values) {
+        ContentValues contentValues;
+        if (values != null) {
+            contentValues = new ContentValues(values);
+        } else {
+            contentValues = new ContentValues();
+        }
+        return contentValues;
+    }
+
+    private Long findPostRowID(SQLiteDatabase db, String postID) {
         Cursor cursor = null;
         Long rowID = null;
         try {
@@ -128,6 +126,7 @@ public class PostContentProvider extends ContentProvider {
             throw new IllegalArgumentException("Post title not specified");
         }
 
+        // If category is empty, then fill it as default category "all";
         if (!values.containsKey(PostTable.COLUMN_NAME_CATEGORY)) {
             values.put(PostTable.COLUMN_NAME_CATEGORY, "all");
         }
@@ -166,32 +165,33 @@ public class PostContentProvider extends ContentProvider {
 
         switch (match) {
             case POSTS:
-                queryCursor = mDb.query(PostTable.TABLE_NAME, projection,
-                        selection,
-                        selectionArgs,
-                        null,
-                        null,
-                        sortOrder);
-
-                queryCursor.setNotificationUri(getContext().getContentResolver(), uri);
+                // Search the whole table;
+                queryCursor = getCursor(uri, projection, selection, selectionArgs, sortOrder);
 
                 break;
             case POST_ID:
+                // Search for single one row with specified ID;
                 selection = PostTable._ID + " = " + uri.getLastPathSegment();
-                queryCursor = mDb.query(PostTable.TABLE_NAME, projection,
-                        selection,
-                        selectionArgs,
-                        null,
-                        null,
-                        sortOrder);
-
-                queryCursor.setNotificationUri(getContext().getContentResolver(), uri);
+                queryCursor = getCursor(uri, projection, selection, selectionArgs, sortOrder);
 
                 break;
             default:
                 throw new IllegalArgumentException("Unsupported uri: " + uri);
         }
 
+        return queryCursor;
+    }
+
+    @NonNull
+    private Cursor getCursor(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+        Cursor queryCursor = mDb.query(PostTable.TABLE_NAME, projection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                sortOrder);
+
+        queryCursor.setNotificationUri(getContext().getContentResolver(), uri);
         return queryCursor;
     }
 
