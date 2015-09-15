@@ -1,4 +1,4 @@
-package in.xinyue.xinyue.database;
+package in.xinyue.xinyue.contentprovider.database;
 
 import android.provider.BaseColumns;
 

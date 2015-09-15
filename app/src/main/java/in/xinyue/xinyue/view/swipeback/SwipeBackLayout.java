@@ -1,5 +1,5 @@
 
-package in.xinyue.xinyue.swipeback;
+package in.xinyue.xinyue.view.swipeback;
 
 import android.app.Activity;
 import android.content.Context;
@@ -187,9 +187,9 @@ public class SwipeBackLayout extends FrameLayout {
     /**
      * Enable edge tracking for the selected edges of the parent view. The
      * callback's
-     * {@link in.xinyue.xinyue.swipeback.ViewDragHelper.Callback#onEdgeTouched(int, int)}
+     * {@link ViewDragHelper.Callback#onEdgeTouched(int, int)}
      * and
-     * {@link in.xinyue.xinyue.swipeback.ViewDragHelper.Callback#onEdgeDragStarted(int, int)}
+     * {@link ViewDragHelper.Callback#onEdgeDragStarted(int, int)}
      * methods will only be invoked for edges for which edge tracking has been
      * enabled.
      *

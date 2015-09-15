@@ -1,4 +1,4 @@
-package in.xinyue.xinyue.database;
+package in.xinyue.xinyue.request;
 
 import android.content.Context;
 import android.graphics.Bitmap;

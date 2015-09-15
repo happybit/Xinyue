@@ -1,4 +1,4 @@
-package in.xinyue.xinyue.model;
+package in.xinyue.xinyue.ui.adapter;
 
 import android.content.Context;
 import android.support.v4.app.Fragment;
@@ -7,6 +7,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.util.Log;
 
 import in.xinyue.xinyue.R;
+import in.xinyue.xinyue.api.Category;
 import in.xinyue.xinyue.ui.fragment.ContentFragment;
 
 public class FragmentAdapter extends FragmentPagerAdapter {

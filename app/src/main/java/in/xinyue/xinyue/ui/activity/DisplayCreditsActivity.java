@@ -1,11 +1,10 @@
-package in.xinyue.xinyue.ui;
+package in.xinyue.xinyue.ui.activity;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
 import in.xinyue.xinyue.R;
-import in.xinyue.xinyue.swipeback.SwipeBackActivity;
+import in.xinyue.xinyue.view.swipeback.SwipeBackActivity;
 
 
 public class DisplayCreditsActivity extends SwipeBackActivity {

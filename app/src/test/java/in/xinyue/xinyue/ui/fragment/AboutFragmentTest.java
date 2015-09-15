@@ -1,7 +1,6 @@
 package in.xinyue.xinyue.ui.fragment;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.view.View;
 
 import org.junit.Before;
@@ -13,9 +12,9 @@ import org.robolectric.shadows.support.v4.SupportFragmentTestUtil;
 
 import in.xinyue.xinyue.BuildConfig;
 import in.xinyue.xinyue.R;
-import in.xinyue.xinyue.ui.DisplayCreditsActivity;
-import in.xinyue.xinyue.ui.DisplayOriginActivity;
-import in.xinyue.xinyue.ui.MainActivity;
+import in.xinyue.xinyue.ui.activity.DisplayCreditsActivity;
+import in.xinyue.xinyue.ui.activity.DisplayOriginActivity;
+import in.xinyue.xinyue.ui.activity.MainActivity;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.robolectric.Shadows.shadowOf;

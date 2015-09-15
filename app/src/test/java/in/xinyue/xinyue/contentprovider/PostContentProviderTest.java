@@ -8,12 +8,10 @@ import android.support.annotation.NonNull;
 
 import junit.framework.Assert;
 
-import org.apache.http.auth.AUTH;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.Robolectric;
 import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
@@ -21,7 +19,7 @@ import org.robolectric.shadows.ShadowApplication;
 import org.robolectric.shadows.ShadowContentResolver;
 
 import in.xinyue.xinyue.BuildConfig;
-import in.xinyue.xinyue.database.PostReaderContract;
+import in.xinyue.xinyue.contentprovider.database.PostReaderContract;
 
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(constants = BuildConfig.class)

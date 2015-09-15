@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="in.xinyue.xinyue.ui.DisplayCreditsActivity">
+    tools:context="in.xinyue.xinyue.ui.activity.DisplayCreditsActivity">
 
     <include
         android:id="@+id/toolbar"

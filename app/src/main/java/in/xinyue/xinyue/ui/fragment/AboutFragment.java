@@ -14,8 +14,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import in.xinyue.xinyue.R;
-import in.xinyue.xinyue.ui.DisplayCreditsActivity;
-import in.xinyue.xinyue.ui.DisplayOriginActivity;
+import in.xinyue.xinyue.ui.activity.DisplayCreditsActivity;
+import in.xinyue.xinyue.ui.activity.DisplayOriginActivity;
 
 
 /**

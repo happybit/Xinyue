@@ -1,4 +1,4 @@
-package in.xinyue.xinyue.model;
+package in.xinyue.xinyue.api;
 
 public enum Category {
     all("all"),

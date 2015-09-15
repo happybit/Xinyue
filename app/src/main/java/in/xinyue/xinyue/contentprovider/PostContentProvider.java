@@ -10,9 +10,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 
-import in.xinyue.xinyue.database.PostDatabaseHelper;
-import in.xinyue.xinyue.database.PostReaderContract;
-import in.xinyue.xinyue.database.PostReaderContract.PostTable;
+import in.xinyue.xinyue.contentprovider.database.PostDatabaseHelper;
+import in.xinyue.xinyue.contentprovider.database.PostReaderContract.PostTable;
 
 public class PostContentProvider extends ContentProvider {
 

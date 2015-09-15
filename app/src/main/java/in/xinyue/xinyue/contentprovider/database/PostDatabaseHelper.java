@@ -1,4 +1,4 @@
-package in.xinyue.xinyue.database;
+package in.xinyue.xinyue.contentprovider.database;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;

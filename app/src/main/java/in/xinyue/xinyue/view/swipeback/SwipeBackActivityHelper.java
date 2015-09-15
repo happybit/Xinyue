@@ -1,5 +1,5 @@
 
-package in.xinyue.xinyue.swipeback;
+package in.xinyue.xinyue.view.swipeback;
 
 import android.app.Activity;
 import android.app.ActivityOptions;

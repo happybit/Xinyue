@@ -1,4 +1,4 @@
-package in.xinyue.xinyue.json;
+package in.xinyue.xinyue.request.json;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package in.xinyue.xinyue.ui;
+package in.xinyue.xinyue.ui.activity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -24,7 +24,7 @@ import android.widget.Toast;
 import java.util.Locale;
 
 import in.xinyue.xinyue.R;
-import in.xinyue.xinyue.database.MySingleton;
+import in.xinyue.xinyue.request.MySingleton;
 import in.xinyue.xinyue.ui.fragment.AboutFragment;
 import in.xinyue.xinyue.ui.fragment.SettingsFragment;
 import in.xinyue.xinyue.ui.fragment.TabContainerFragment;

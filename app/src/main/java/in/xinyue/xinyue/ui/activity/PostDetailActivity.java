@@ -1,4 +1,4 @@
-package in.xinyue.xinyue.ui;
+package in.xinyue.xinyue.ui.activity;
 
 import android.content.Intent;
 import android.database.Cursor;
@@ -15,11 +15,11 @@ import android.widget.TextView;
 
 import in.xinyue.xinyue.R;
 import in.xinyue.xinyue.contentprovider.PostContentProvider;
-import in.xinyue.xinyue.database.MySingleton;
-import in.xinyue.xinyue.database.PostReaderContract;
-import in.xinyue.xinyue.database.UILImageGetter;
-import in.xinyue.xinyue.model.Category;
-import in.xinyue.xinyue.swipeback.SwipeBackActivity;
+import in.xinyue.xinyue.request.MySingleton;
+import in.xinyue.xinyue.contentprovider.database.PostReaderContract;
+import in.xinyue.xinyue.request.UILImageGetter;
+import in.xinyue.xinyue.api.Category;
+import in.xinyue.xinyue.view.swipeback.SwipeBackActivity;
 
 public class PostDetailActivity extends SwipeBackActivity {
 

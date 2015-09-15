@@ -1,4 +1,4 @@
-package in.xinyue.xinyue.model;
+package in.xinyue.xinyue.view;
 
 import android.content.Context;
 import android.support.v4.widget.SwipeRefreshLayout;

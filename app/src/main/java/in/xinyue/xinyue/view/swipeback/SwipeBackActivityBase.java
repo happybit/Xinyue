@@ -1,4 +1,4 @@
-package in.xinyue.xinyue.swipeback;
+package in.xinyue.xinyue.view.swipeback;
 
 /**
  * @author Yrom

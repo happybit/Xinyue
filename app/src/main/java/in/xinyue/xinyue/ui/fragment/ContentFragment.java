@@ -1,14 +1,11 @@
 package in.xinyue.xinyue.ui.fragment;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -51,19 +48,21 @@ import java.util.List;
 import in.xinyue.xinyue.R;
 import in.xinyue.xinyue.api.XinyueApi;
 import in.xinyue.xinyue.contentprovider.PostContentProvider;
-import in.xinyue.xinyue.database.GsonRequest;
-import in.xinyue.xinyue.database.MySingleton;
-import in.xinyue.xinyue.database.PostReaderContract;
-import in.xinyue.xinyue.json.PostJson;
-import in.xinyue.xinyue.json.TermsJson;
-import in.xinyue.xinyue.model.Category;
-import in.xinyue.xinyue.model.RefreshLayout;
-import in.xinyue.xinyue.ui.PostDetailActivity;
+import in.xinyue.xinyue.request.GsonRequest;
+import in.xinyue.xinyue.request.MySingleton;
+import in.xinyue.xinyue.contentprovider.database.PostReaderContract;
+import in.xinyue.xinyue.request.json.PostJson;
+import in.xinyue.xinyue.request.json.TermsJson;
+import in.xinyue.xinyue.api.Category;
+import in.xinyue.xinyue.request.Connection;
+import in.xinyue.xinyue.view.RefreshLayout;
+import in.xinyue.xinyue.ui.activity.PostDetailActivity;
 
 public class ContentFragment extends ListFragment implements
         LoaderManager.LoaderCallbacks<Cursor> {
 
     public static final int FIRST_PAGE_NUMBER = 1;
+    private final Connection connection = new Connection();
     private int mNextPage = 2;
     private Category mCategory;
 
@@ -139,8 +138,6 @@ public class ContentFragment extends ListFragment implements
                 loadMore();
             }
         });
-
-
 
         // prevent the progress bar covering by action bar.
         int topToPadding = 100;
@@ -312,7 +309,8 @@ public class ContentFragment extends ListFragment implements
                 Cursor c = super.loadInBackground();
                 refreshLayout.setLoading(false);
                 Log.d("XinyueLog", "load in background for category: " + mCategory.getDisplayName());
-                if (isDataConnected() || isWifiConnected()) {
+                if (connection.isDataConnected(getActivity())
+                        || connection.isWifiConnected(getActivity())) {
                     asyncQueryRequest(PostContentProvider.CONTENT_URI,
                             mCategory.getDisplayName(), pageNum);
                 } else {
@@ -526,20 +524,6 @@ public class ContentFragment extends ListFragment implements
 
         MySingleton.getInstance(getActivity()).addToRequestQueue(gsonRequest);
 
-    }
-
-    private boolean isDataConnected() {
-        ConnectivityManager connMgr = (ConnectivityManager)
-                getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connMgr.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-        return networkInfo.isConnected();
-    }
-
-    private boolean isWifiConnected() {
-        ConnectivityManager connMgr = (ConnectivityManager)
-                getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-        return networkInfo.isConnected();
     }
 
 }

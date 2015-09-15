@@ -10,7 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import in.xinyue.xinyue.R;
-import in.xinyue.xinyue.model.FragmentAdapter;
+import in.xinyue.xinyue.ui.adapter.FragmentAdapter;
 
 /**
  * A simple {@link Fragment} subclass.

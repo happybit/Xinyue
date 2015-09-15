@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package in.xinyue.xinyue.swipeback;
+package in.xinyue.xinyue.view.swipeback;
 
 import android.content.Context;
 import android.support.v4.view.MotionEventCompat;
@@ -478,9 +478,9 @@ public class ViewDragHelper {
     /**
      * Enable edge tracking for the selected edges of the parent view. The
      * callback's
-     * {@link me.storm.ninegag.view.swipeback.ViewDragHelper.Callback#onEdgeTouched(int, int)}
+     * {@link in.xinyue.xinyue.view.swipeback.ViewDragHelper.Callback#onEdgeTouched(int, int)}
      * and
-     * {@link me.storm.ninegag.view.swipeback.ViewDragHelper.Callback#onEdgeDragStarted(int, int)}
+     * {@link in.xinyue.xinyue.view.swipeback.ViewDragHelper.Callback#onEdgeDragStarted(int, int)}
      * methods will only be invoked for edges for which edge tracking has been
      * enabled.
      *
@@ -520,7 +520,7 @@ public class ViewDragHelper {
     /**
      * Capture a specific child view for dragging within the parent. The
      * callback will be notified but
-     * {@link me.storm.ninegag.view.swipeback.ViewDragHelper.Callback#tryCaptureView(View, int)}
+     * {@link in.xinyue.xinyue.view.swipeback.ViewDragHelper.Callback#tryCaptureView(View, int)}
      * will not be asked permission to capture this view.
      *
      * @param childView Child view to capture
@@ -1533,7 +1533,7 @@ public class ViewDragHelper {
     /**
      * Find the topmost child under the given point within the parent view's
      * coordinate system. The child order is determined using
-     * {@link me.storm.ninegag.view.swipeback.ViewDragHelper.Callback#getOrderedChildIndex(int)}
+     * {@link in.xinyue.xinyue.view.swipeback.ViewDragHelper.Callback#getOrderedChildIndex(int)}
      * .
      *
      * @param x X position to test in the parent's coordinate system
