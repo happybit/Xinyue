@@ -5,8 +5,8 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
-public class Connection {
-    public Connection() {
+public class DataAndWifiConnectionStatus {
+    public DataAndWifiConnectionStatus() {
     }
 
     public boolean isDataConnected(Activity activity) {

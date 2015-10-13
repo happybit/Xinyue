@@ -54,21 +54,24 @@ import in.xinyue.xinyue.contentprovider.database.PostReaderContract;
 import in.xinyue.xinyue.request.json.PostJson;
 import in.xinyue.xinyue.request.json.TermsJson;
 import in.xinyue.xinyue.api.Category;
-import in.xinyue.xinyue.request.Connection;
+import in.xinyue.xinyue.request.DataAndWifiConnectionStatus;
 import in.xinyue.xinyue.view.RefreshLayout;
 import in.xinyue.xinyue.ui.activity.PostDetailActivity;
 
 public class ContentFragment extends ListFragment implements
         LoaderManager.LoaderCallbacks<Cursor> {
 
-    public static final int FIRST_PAGE_NUMBER = 1;
-    private final Connection connection = new Connection();
-    private int mNextPage = 2;
-    private Category mCategory;
+    public static final String EXTRA_CATEGORY = "extra_category";
+    public static final String EXTRA_PAGE = "extra_page";
 
-    private ListView mListView;
+    private static final int FIRST_PAGE_NUMBER = 1;
+
+    private final DataAndWifiConnectionStatus connectionStatus = new DataAndWifiConnectionStatus();
+    private int nextPage = 2;
+    private Category category;
+
+    private ListView listView;
     private SimpleCursorAdapter adapter;
-    //private SwipeRefreshLayout swipeRefreshLayout;
     private RefreshLayout refreshLayout;
     private View footerLayout;
     private TextView textMore;
@@ -77,9 +80,6 @@ public class ContentFragment extends ListFragment implements
 
     private boolean loadMoreFlag = false;
     private boolean refreshFlag = false;
-
-    public static final String EXTRA_CATEGORY = "extra_category";
-    public static final String EXTRA_PAGE = "extra_page";
 
     private String[] projection = {PostReaderContract.PostTable._ID,
             PostReaderContract.PostTable.COLUMN_NAME_TITLE,
@@ -113,18 +113,11 @@ public class ContentFragment extends ListFragment implements
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        // Set title bar
-        ActionBar supportActionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
-        if (supportActionBar != null) {
-            supportActionBar.setTitle(getActivity().getString(R.string.app_name));
-            supportActionBar.setElevation(0);
-        }
 
+        setActionBarTitleAndElevation();
         contentView = inflater.inflate(R.layout.fragment_content, container, false);
-
         parseArgument();
 
-        //swipeRefreshLayout = (SwipeRefreshLayout) contentView.findViewById(R.id.swipe_layout);
         refreshLayout = (RefreshLayout) contentView.findViewById(R.id.swipe_layout);
         footerLayout = getActivity().getLayoutInflater().inflate(R.layout.listview_footer, null);
         textMore = (TextView) footerLayout.findViewById(R.id.text_more);
@@ -161,38 +154,49 @@ public class ContentFragment extends ListFragment implements
             }
         });
 
-        Log.d("XinyueLog", mCategory.getDisplayName() + " refresh layout refreshing status is " + refreshLayout.isRefreshing());
+        Log.d(XinyueApi.XINYUE_LOG_TAG, category.getDisplayName()
+                + " refresh layout refreshing status is " + refreshLayout.isRefreshing());
         if (!refreshLayout.isRefreshing()) {
             refreshLayout.setRefreshing(true);
-            Log.d("XinyueLog", "Category " + mCategory.getDisplayName() + " is refreshing.");
+            Log.d(XinyueApi.XINYUE_LOG_TAG, "Category "
+                    + category.getDisplayName() + " is refreshing.");
         }
-        Log.d("XinyueLog", mCategory.getDisplayName() + " refresh layout refreshing status is " + refreshLayout.isRefreshing());
+        Log.d(XinyueApi.XINYUE_LOG_TAG, category.getDisplayName()
+                + " refresh layout refreshing status is " + refreshLayout.isRefreshing());
         fillData();
 
         return contentView;
+    }
+
+    private void setActionBarTitleAndElevation() {
+        ActionBar supportActionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        if (supportActionBar != null) {
+            supportActionBar.setTitle(getActivity().getString(R.string.app_name));
+            supportActionBar.setElevation(0);
+        }
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        mListView = getListView();
-        mListView.setDividerHeight(2);
+        listView = getListView();
+        listView.setDividerHeight(2);
 
-        mListView.addFooterView(footerLayout);
-        refreshLayout.setChildView(mListView);
+        listView.addFooterView(footerLayout);
+        refreshLayout.setChildView(listView);
 
     }
 
     private void loadMore() {
         textMore.setVisibility(View.GONE);
         progressBar.setVisibility(View.VISIBLE);
-        loadNext(mNextPage);
+        loadNext(nextPage);
     }
 
     private void parseArgument() {
         Bundle args = getArguments();
-        mCategory = Category.valueOf(args.getString(EXTRA_CATEGORY));
+        category = Category.valueOf(args.getString(EXTRA_CATEGORY));
     }
 
     // open the second activity if an entry is clicked
@@ -200,7 +204,7 @@ public class ContentFragment extends ListFragment implements
     public void onListItemClick(ListView l, View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
         Intent i = new Intent(getActivity(), PostDetailActivity.class);
-        Log.d("XinyueLog", String.valueOf(id));
+        Log.d(XinyueApi.XINYUE_LOG_TAG, String.valueOf(id));
         Uri postUri = Uri.parse(PostContentProvider.CONTENT_URI + "/" + id);
         i.putExtra(PostContentProvider.CONTENT_ITEM_TYPE, postUri);
 
@@ -240,7 +244,7 @@ public class ContentFragment extends ListFragment implements
 
         Bundle args = new Bundle();
         args.putString(EXTRA_PAGE, String.valueOf(FIRST_PAGE_NUMBER));
-        //getLoaderManager().initLoader(getLoaderId(mCategory), args, this);
+        //getLoaderManager().initLoader(getLoaderId(category), args, this);
         //getLoaderManager().initLoader(0, args, this);
         getLoaderManager().restartLoader(0, args, this);
     }
@@ -270,12 +274,12 @@ public class ContentFragment extends ListFragment implements
     private void loadNext(int pageNumber) {
         Bundle args = new Bundle();
         args.putString(EXTRA_PAGE, String.valueOf(pageNumber));
-        //getLoaderManager().restartLoader(getLoaderId(mCategory), args, this);
+        //getLoaderManager().restartLoader(getLoaderId(category), args, this);
         getLoaderManager().restartLoader(0, args, this);
-        Log.d("XinyueLog", "restart loader for category: " + mCategory.getDisplayName());
+        Log.d(XinyueApi.XINYUE_LOG_TAG, "restart loader for category: " + category.getDisplayName());
 
         if (loadMoreFlag) {
-            mNextPage = pageNumber + 1;
+            nextPage = pageNumber + 1;
         }
     }
 
@@ -290,8 +294,8 @@ public class ContentFragment extends ListFragment implements
         final String pageNum = args.getString(EXTRA_PAGE);
 
         String selection = PostReaderContract.PostTable.COLUMN_NAME_CATEGORY + " LIKE LOWER(?)";
-        String categoryMatchString = mCategory.getDisplayName();
-        if (!mCategory.equals(Category.all)) {
+        String categoryMatchString = category.getDisplayName();
+        if (!category.equals(Category.all)) {
             categoryMatchString = "; " + categoryMatchString;
         }
         String[] selectionArgs = new String[] {"%"+categoryMatchString+"%"};
@@ -299,7 +303,7 @@ public class ContentFragment extends ListFragment implements
         String limitPostNumber = (refreshFlag) ?
                 ("") : (" LIMIT " + String.valueOf(Integer.valueOf(pageNum)*10));
 
-        Log.d("XinyueLog", "create loader for category: " + mCategory.getDisplayName());
+        Log.d(XinyueApi.XINYUE_LOG_TAG, "create loader for category: " + category.getDisplayName());
         return (new CursorLoader(getActivity(),
                 PostContentProvider.CONTENT_URI, projection, selection, selectionArgs,
                 PostReaderContract.PostTable.
@@ -308,11 +312,11 @@ public class ContentFragment extends ListFragment implements
             public Cursor loadInBackground() {
                 Cursor c = super.loadInBackground();
                 refreshLayout.setLoading(false);
-                Log.d("XinyueLog", "load in background for category: " + mCategory.getDisplayName());
-                if (connection.isDataConnected(getActivity())
-                        || connection.isWifiConnected(getActivity())) {
+                Log.d(XinyueApi.XINYUE_LOG_TAG, "load in background for category: " + category.getDisplayName());
+                if (connectionStatus.isDataConnected(getActivity())
+                        || connectionStatus.isWifiConnected(getActivity())) {
                     asyncQueryRequest(PostContentProvider.CONTENT_URI,
-                            mCategory.getDisplayName(), pageNum);
+                            category.getDisplayName(), pageNum);
                 } else {
                     // UI operation like Toast cannot perform in background thread without Looper.
                     Handler handler = new Handler(Looper.getMainLooper());
@@ -328,8 +332,8 @@ public class ContentFragment extends ListFragment implements
                             refreshLayout.setRefreshing(false);
 
                             if (loadMoreFlag) {
-                                if (mNextPage > 2) {
-                                    mNextPage--;
+                                if (nextPage > 2) {
+                                    nextPage--;
                                 }
                                 textMore.setText(getActivity().getResources().
                                         getString(R.string.footer_fail_indication));
@@ -359,7 +363,7 @@ public class ContentFragment extends ListFragment implements
         int id = item.getItemId();
 
         if (id == R.id.refresh) {
-            mListView.smoothScrollToPosition(0);
+            listView.smoothScrollToPosition(0);
             refreshLayout.setRefreshing(true);
             refreshFlag = true;
             loadNext(FIRST_PAGE_NUMBER);
@@ -400,7 +404,7 @@ public class ContentFragment extends ListFragment implements
 
     public void asyncQueryRequest(Uri uri, String category, final String pageNumber) {
         String url = String.format(XinyueApi.LIST, category, pageNumber);
-        Log.d("XinyueLog", "request url is: " + url);
+        Log.d(XinyueApi.XINYUE_LOG_TAG, "request url is: " + url);
         GsonRequest<PostJson[]> gsonRequest = new GsonRequest<>(url, PostJson[].class, null,
                 new Response.Listener<PostJson[]>() {
                     @Override
@@ -409,7 +413,7 @@ public class ContentFragment extends ListFragment implements
 
                         if (posts.isEmpty()) {
                             refreshLayout.setRefreshing(false);
-                            Log.d("XinyueLog", "Category " + mCategory.getDisplayName() + " refreshing disappear for empty response.");
+                            Log.d(XinyueApi.XINYUE_LOG_TAG, "Category " + ContentFragment.this.category.getDisplayName() + " refreshing disappear for empty response.");
 
                             if (loadMoreFlag) {
                                 textMore.setText(getActivity().getResources().
@@ -436,15 +440,15 @@ public class ContentFragment extends ListFragment implements
                                     insert(PostContentProvider.CONTENT_URI, postValues);
 
                             if (providerUri != null) {
-                                Log.d("XinyueLog", "Insert " + providerUri.toString() +
+                                Log.d(XinyueApi.XINYUE_LOG_TAG, "Insert " + providerUri.toString() +
                                         " into database!");
                             }
                         }
 
                         refreshLayout.setRefreshing(false);
-                        Log.d("XinyueLog", "Category " + mCategory.getDisplayName() + " refreshing disappear for complete response.");
+                        Log.d(XinyueApi.XINYUE_LOG_TAG, "Category " + ContentFragment.this.category.getDisplayName() + " refreshing disappear for complete response.");
 
-                        Log.d("XinyueLog", "loadMoreFlag is " + loadMoreFlag);
+                        Log.d(XinyueApi.XINYUE_LOG_TAG, "loadMoreFlag is " + loadMoreFlag);
                         if (loadMoreFlag) {
                             textMore.setText(getActivity().getResources().
                                     getString(R.string.footer_has_more_indication));
@@ -498,12 +502,12 @@ public class ContentFragment extends ListFragment implements
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError volleyError) {
-                Log.d("XinyueLog", volleyError.toString());
+                Log.d(XinyueApi.XINYUE_LOG_TAG, volleyError.toString());
                 refreshLayout.setRefreshing(false);
 
                 if (loadMoreFlag) {
-                    if (mNextPage > 2) {
-                        mNextPage--;
+                    if (nextPage > 2) {
+                        nextPage--;
                     }
                     textMore.setText(getActivity().getResources().
                             getString(R.string.footer_fail_indication));
