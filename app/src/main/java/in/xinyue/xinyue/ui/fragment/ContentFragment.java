@@ -61,15 +61,15 @@ import in.xinyue.xinyue.ui.activity.PostDetailActivity;
 public class ContentFragment extends ListFragment implements
         LoaderManager.LoaderCallbacks<Cursor> {
 
-    public static final String EXTRA_CATEGORY = "extra_category";
-    public static final String EXTRA_PAGE = "extra_page";
+    public static final String KEY_CATEGORY = "category";
+    public static final String KEY_PAGE = "page";
 
-    private static final int FIRST_PAGE_NUMBER = 1;
+    private static final int FIRST_PAGE_INDEX = 1;
 
     private final DataAndWifiConnectionStatus connectionStatus = new DataAndWifiConnectionStatus();
-    private int nextPage = 2;
-    private Category category;
+    private int nextPageIndex = FIRST_PAGE_INDEX + 1;
 
+    private Category category;
     private ListView listView;
     private SimpleCursorAdapter adapter;
     private RefreshLayout refreshLayout;
@@ -88,13 +88,11 @@ public class ContentFragment extends ListFragment implements
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
-     *
-     * @return A new instance of fragment ContentFragment.
      */
     public static ContentFragment newInstance(Category category) {
         ContentFragment fragment = new ContentFragment();
         Bundle args = new Bundle();
-        args.putString(EXTRA_CATEGORY, category.name());
+        args.putString(KEY_CATEGORY, category.name());
         fragment.setArguments(args);
         return fragment;
     }
@@ -142,7 +140,7 @@ public class ContentFragment extends ListFragment implements
             @Override
             public void onRefresh() {
                 refreshFlag = true;
-                loadNext(FIRST_PAGE_NUMBER);
+                loadNext(FIRST_PAGE_INDEX);
             }
         });
 
@@ -191,15 +189,15 @@ public class ContentFragment extends ListFragment implements
     private void loadMore() {
         textMore.setVisibility(View.GONE);
         progressBar.setVisibility(View.VISIBLE);
-        loadNext(nextPage);
+        loadNext(nextPageIndex);
     }
 
     private void parseArgument() {
         Bundle args = getArguments();
-        category = Category.valueOf(args.getString(EXTRA_CATEGORY));
+        category = Category.valueOf(args.getString(KEY_CATEGORY));
     }
 
-    // open the second activity if an entry is clicked
+    // open the post detail if an entry is clicked.
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
@@ -243,7 +241,7 @@ public class ContentFragment extends ListFragment implements
         setListAdapter(adapter);
 
         Bundle args = new Bundle();
-        args.putString(EXTRA_PAGE, String.valueOf(FIRST_PAGE_NUMBER));
+        args.putString(KEY_PAGE, String.valueOf(FIRST_PAGE_INDEX));
         //getLoaderManager().initLoader(getLoaderId(category), args, this);
         //getLoaderManager().initLoader(0, args, this);
         getLoaderManager().restartLoader(0, args, this);
@@ -273,25 +271,20 @@ public class ContentFragment extends ListFragment implements
 
     private void loadNext(int pageNumber) {
         Bundle args = new Bundle();
-        args.putString(EXTRA_PAGE, String.valueOf(pageNumber));
+        args.putString(KEY_PAGE, String.valueOf(pageNumber));
         //getLoaderManager().restartLoader(getLoaderId(category), args, this);
         getLoaderManager().restartLoader(0, args, this);
         Log.d(XinyueApi.XINYUE_LOG_TAG, "restart loader for category: " + category.getDisplayName());
 
         if (loadMoreFlag) {
-            nextPage = pageNumber + 1;
+            nextPageIndex = pageNumber + 1;
         }
     }
-
-    private int getLoaderId(Category category) {
-        return category.ordinal();
-    }
-
 
     // create a new loader after the initLoader() call
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        final String pageNum = args.getString(EXTRA_PAGE);
+        final String pageNum = args.getString(KEY_PAGE);
 
         String selection = PostReaderContract.PostTable.COLUMN_NAME_CATEGORY + " LIKE LOWER(?)";
         String categoryMatchString = category.getDisplayName();
@@ -332,8 +325,8 @@ public class ContentFragment extends ListFragment implements
                             refreshLayout.setRefreshing(false);
 
                             if (loadMoreFlag) {
-                                if (nextPage > 2) {
-                                    nextPage--;
+                                if (nextPageIndex > 2) {
+                                    nextPageIndex--;
                                 }
                                 textMore.setText(getActivity().getResources().
                                         getString(R.string.footer_fail_indication));
@@ -366,7 +359,7 @@ public class ContentFragment extends ListFragment implements
             listView.smoothScrollToPosition(0);
             refreshLayout.setRefreshing(true);
             refreshFlag = true;
-            loadNext(FIRST_PAGE_NUMBER);
+            loadNext(FIRST_PAGE_INDEX);
             return true;
         }
 
@@ -506,8 +499,8 @@ public class ContentFragment extends ListFragment implements
                 refreshLayout.setRefreshing(false);
 
                 if (loadMoreFlag) {
-                    if (nextPage > 2) {
-                        nextPage--;
+                    if (nextPageIndex > 2) {
+                        nextPageIndex--;
                     }
                     textMore.setText(getActivity().getResources().
                             getString(R.string.footer_fail_indication));
