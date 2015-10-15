@@ -67,33 +67,37 @@ public class ContentFragment extends ListFragment implements
     private static final int FIRST_PAGE_INDEX = 1;
 
     private final DataAndWifiConnectionStatus connectionStatus = new DataAndWifiConnectionStatus();
+
     private int nextPageIndex = FIRST_PAGE_INDEX + 1;
-
     private Category category;
+
     private ListView listView;
-    private SimpleCursorAdapter adapter;
     private RefreshLayout refreshLayout;
-    private View footerLayout;
-    private TextView textMore;
-    private ProgressBar progressBar;
-    private View contentView;
+    private View listFooterView;
+    private TextView loadMoreTextView;
+    private ProgressBar loadMoreProgressBar;
+    private View contentFragmentView;
 
-    private boolean loadMoreFlag = false;
-    private boolean refreshFlag = false;
+    private SimpleCursorAdapter cursorAdapter;
 
-    private String[] projection = {PostReaderContract.PostTable._ID,
+    private boolean isLoadingMore = false;
+    private boolean isRefreshing = false;
+
+    private String[] postProjection = {PostReaderContract.PostTable._ID,
             PostReaderContract.PostTable.COLUMN_NAME_TITLE,
             PostReaderContract.PostTable.COLUMN_NAME_COVER};
 
     /**
      * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
+     * content fragment using input category.
      */
     public static ContentFragment newInstance(Category category) {
         ContentFragment fragment = new ContentFragment();
+
         Bundle args = new Bundle();
         args.putString(KEY_CATEGORY, category.name());
         fragment.setArguments(args);
+
         return fragment;
     }
 
@@ -102,30 +106,26 @@ public class ContentFragment extends ListFragment implements
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
 
         setActionBarTitleAndElevation();
-        contentView = inflater.inflate(R.layout.fragment_content, container, false);
+        contentFragmentView = inflater.inflate(R.layout.fragment_content, container, false);
         parseArgument();
 
-        refreshLayout = (RefreshLayout) contentView.findViewById(R.id.swipe_layout);
-        footerLayout = getActivity().getLayoutInflater().inflate(R.layout.listview_footer, null);
-        textMore = (TextView) footerLayout.findViewById(R.id.text_more);
-        progressBar = (ProgressBar) footerLayout.findViewById(R.id.load_progress_bar);
-        progressBar.getIndeterminateDrawable().setColorFilter(Color.BLACK, PorterDuff.Mode.MULTIPLY);
+        setHasOptionsMenu(true);
 
-        textMore.setOnClickListener(new View.OnClickListener() {
+        refreshLayout = (RefreshLayout) contentFragmentView.findViewById(R.id.swipe_layout);
+        listFooterView = getActivity().getLayoutInflater().inflate(R.layout.listview_footer, null);
+        loadMoreTextView = (TextView) listFooterView.findViewById(R.id.text_more);
+        loadMoreProgressBar = (ProgressBar) listFooterView.findViewById(R.id.load_progress_bar);
+        loadMoreProgressBar.getIndeterminateDrawable().setColorFilter(Color.BLACK, PorterDuff.Mode.MULTIPLY);
+
+        loadMoreTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                loadMoreFlag = true;
+                isLoadingMore = true;
                 loadMore();
             }
         });
@@ -139,7 +139,7 @@ public class ContentFragment extends ListFragment implements
         refreshLayout.setOnRefreshListener(new RefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                refreshFlag = true;
+                isRefreshing = true;
                 loadNext(FIRST_PAGE_INDEX);
             }
         });
@@ -147,7 +147,7 @@ public class ContentFragment extends ListFragment implements
         refreshLayout.setOnLoadListener(new RefreshLayout.OnLoadListener() {
             @Override
             public void onLoad() {
-                loadMoreFlag = true;
+                isLoadingMore = true;
                 loadMore();
             }
         });
@@ -163,7 +163,7 @@ public class ContentFragment extends ListFragment implements
                 + " refresh layout refreshing status is " + refreshLayout.isRefreshing());
         fillData();
 
-        return contentView;
+        return contentFragmentView;
     }
 
     private void setActionBarTitleAndElevation() {
@@ -181,14 +181,14 @@ public class ContentFragment extends ListFragment implements
         listView = getListView();
         listView.setDividerHeight(2);
 
-        listView.addFooterView(footerLayout);
+        listView.addFooterView(listFooterView);
         refreshLayout.setChildView(listView);
 
     }
 
     private void loadMore() {
-        textMore.setVisibility(View.GONE);
-        progressBar.setVisibility(View.VISIBLE);
+        loadMoreTextView.setVisibility(View.GONE);
+        loadMoreProgressBar.setVisibility(View.VISIBLE);
         loadNext(nextPageIndex);
     }
 
@@ -215,7 +215,7 @@ public class ContentFragment extends ListFragment implements
                 PostReaderContract.PostTable.COLUMN_NAME_COVER};
         int[] to = new int[] {R.id.title, R.id.cover};
 
-        adapter = new SimpleCursorAdapter(getActivity(), R.layout.post_row, null, from, to, 0);
+        cursorAdapter = new SimpleCursorAdapter(getActivity(), R.layout.post_row, null, from, to, 0);
 
         SimpleCursorAdapter.ViewBinder savb =
                 new SimpleCursorAdapter.ViewBinder() {
@@ -237,8 +237,8 @@ public class ContentFragment extends ListFragment implements
                     }
                 };
 
-        adapter.setViewBinder(savb);
-        setListAdapter(adapter);
+        cursorAdapter.setViewBinder(savb);
+        setListAdapter(cursorAdapter);
 
         Bundle args = new Bundle();
         args.putString(KEY_PAGE, String.valueOf(FIRST_PAGE_INDEX));
@@ -276,7 +276,7 @@ public class ContentFragment extends ListFragment implements
         getLoaderManager().restartLoader(0, args, this);
         Log.d(XinyueApi.XINYUE_LOG_TAG, "restart loader for category: " + category.getDisplayName());
 
-        if (loadMoreFlag) {
+        if (isLoadingMore) {
             nextPageIndex = pageNumber + 1;
         }
     }
@@ -293,12 +293,12 @@ public class ContentFragment extends ListFragment implements
         }
         String[] selectionArgs = new String[] {"%"+categoryMatchString+"%"};
 
-        String limitPostNumber = (refreshFlag) ?
+        String limitPostNumber = (isRefreshing) ?
                 ("") : (" LIMIT " + String.valueOf(Integer.valueOf(pageNum)*10));
 
         Log.d(XinyueApi.XINYUE_LOG_TAG, "create loader for category: " + category.getDisplayName());
         return (new CursorLoader(getActivity(),
-                PostContentProvider.CONTENT_URI, projection, selection, selectionArgs,
+                PostContentProvider.CONTENT_URI, postProjection, selection, selectionArgs,
                 PostReaderContract.PostTable.
                         COLUMN_NAME_CREATED_DATE + " DESC" + limitPostNumber) {
             @Override
@@ -324,22 +324,22 @@ public class ContentFragment extends ListFragment implements
 
                             refreshLayout.setRefreshing(false);
 
-                            if (loadMoreFlag) {
+                            if (isLoadingMore) {
                                 if (nextPageIndex > 2) {
                                     nextPageIndex--;
                                 }
-                                textMore.setText(getActivity().getResources().
+                                loadMoreTextView.setText(getActivity().getResources().
                                         getString(R.string.footer_fail_indication));
-                                textMore.setVisibility(View.VISIBLE);
-                                progressBar.setVisibility(View.GONE);
-                                loadMoreFlag = false;
+                                loadMoreTextView.setVisibility(View.VISIBLE);
+                                loadMoreProgressBar.setVisibility(View.GONE);
+                                isLoadingMore = false;
                             }
                         }
                     });
 
                 }
 
-                refreshFlag = false;
+                isRefreshing = false;
 
                 return c;
             }
@@ -358,7 +358,7 @@ public class ContentFragment extends ListFragment implements
         if (id == R.id.refresh) {
             listView.smoothScrollToPosition(0);
             refreshLayout.setRefreshing(true);
-            refreshFlag = true;
+            isRefreshing = true;
             loadNext(FIRST_PAGE_INDEX);
             return true;
         }
@@ -368,14 +368,14 @@ public class ContentFragment extends ListFragment implements
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        adapter.swapCursor(data);
+        cursorAdapter.swapCursor(data);
         //refreshLayout.setRefreshing(false);
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         // data is not available anymore, delete reference
-        adapter.swapCursor(null);
+        cursorAdapter.swapCursor(null);
     }
 
     private class AnimateFirstDisplayListener extends SimpleImageLoadingListener {
@@ -408,14 +408,14 @@ public class ContentFragment extends ListFragment implements
                             refreshLayout.setRefreshing(false);
                             Log.d(XinyueApi.XINYUE_LOG_TAG, "Category " + ContentFragment.this.category.getDisplayName() + " refreshing disappear for empty response.");
 
-                            if (loadMoreFlag) {
-                                textMore.setText(getActivity().getResources().
+                            if (isLoadingMore) {
+                                loadMoreTextView.setText(getActivity().getResources().
                                         getString(R.string.footer_no_more_indication));
-                                textMore.setOnClickListener(null);
+                                loadMoreTextView.setOnClickListener(null);
                                 refreshLayout.setOnLoadListener(null);
-                                textMore.setVisibility(View.VISIBLE);
-                                progressBar.setVisibility(View.GONE);
-                                loadMoreFlag = false;
+                                loadMoreTextView.setVisibility(View.VISIBLE);
+                                loadMoreProgressBar.setVisibility(View.GONE);
+                                isLoadingMore = false;
                             }
 
                             return;
@@ -441,13 +441,13 @@ public class ContentFragment extends ListFragment implements
                         refreshLayout.setRefreshing(false);
                         Log.d(XinyueApi.XINYUE_LOG_TAG, "Category " + ContentFragment.this.category.getDisplayName() + " refreshing disappear for complete response.");
 
-                        Log.d(XinyueApi.XINYUE_LOG_TAG, "loadMoreFlag is " + loadMoreFlag);
-                        if (loadMoreFlag) {
-                            textMore.setText(getActivity().getResources().
+                        Log.d(XinyueApi.XINYUE_LOG_TAG, "isLoadingMore is " + isLoadingMore);
+                        if (isLoadingMore) {
+                            loadMoreTextView.setText(getActivity().getResources().
                                     getString(R.string.footer_has_more_indication));
-                            textMore.setVisibility(View.VISIBLE);
-                            progressBar.setVisibility(View.GONE);
-                            loadMoreFlag = false;
+                            loadMoreTextView.setVisibility(View.VISIBLE);
+                            loadMoreProgressBar.setVisibility(View.GONE);
+                            isLoadingMore = false;
                         }
 
                     }
@@ -498,15 +498,15 @@ public class ContentFragment extends ListFragment implements
                 Log.d(XinyueApi.XINYUE_LOG_TAG, volleyError.toString());
                 refreshLayout.setRefreshing(false);
 
-                if (loadMoreFlag) {
+                if (isLoadingMore) {
                     if (nextPageIndex > 2) {
                         nextPageIndex--;
                     }
-                    textMore.setText(getActivity().getResources().
+                    loadMoreTextView.setText(getActivity().getResources().
                             getString(R.string.footer_fail_indication));
-                    textMore.setVisibility(View.VISIBLE);
-                    progressBar.setVisibility(View.GONE);
-                    loadMoreFlag = false;
+                    loadMoreTextView.setVisibility(View.VISIBLE);
+                    loadMoreProgressBar.setVisibility(View.GONE);
+                    isLoadingMore = false;
                 }
 
                 if (getActivity() != null) {
