@@ -37,7 +37,6 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.nostra13.universalimageloader.core.imageaware.ImageAware;
 import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
-import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
 import java.util.Arrays;
@@ -73,10 +72,8 @@ public class ContentFragment extends ListFragment implements
 
     private ListView listView;
     private RefreshLayout refreshLayout;
-    private View listFooterView;
     private TextView loadMoreTextView;
     private ProgressBar loadMoreProgressBar;
-    private View contentFragmentView;
 
     private SimpleCursorAdapter cursorAdapter;
 
@@ -106,36 +103,42 @@ public class ContentFragment extends ListFragment implements
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        parseCategoryFromArgs();
+        setHasOptionsMenu(true);
+    }
+
+    private void parseCategoryFromArgs() {
+        Bundle args = getArguments();
+        category = Category.valueOf(args.getString(KEY_CATEGORY));
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+        View contentFragmentView = inflater.inflate(R.layout.fragment_content, container, false);
+        setActionBar();
+        initializeRefreshLayout(contentFragmentView);
+        fillData();
+        return contentFragmentView;
+    }
 
-        setActionBarTitleAndElevation();
-        contentFragmentView = inflater.inflate(R.layout.fragment_content, container, false);
-        parseArgument();
+    private void setActionBar() {
+        ActionBar supportActionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        if (supportActionBar != null) {
+            supportActionBar.setTitle(getActivity().getString(R.string.app_name));
+            supportActionBar.setElevation(0);
+        }
+    }
 
-        setHasOptionsMenu(true);
+    private void initializeRefreshLayout(View contentFragmentView) {
+        // top to padding offset. prevent the refresh progress bar overlapped by action bar.
+        int refreshProgressBarOffset = 100;
 
         refreshLayout = (RefreshLayout) contentFragmentView.findViewById(R.id.swipe_layout);
-        listFooterView = getActivity().getLayoutInflater().inflate(R.layout.listview_footer, null);
-        loadMoreTextView = (TextView) listFooterView.findViewById(R.id.text_more);
-        loadMoreProgressBar = (ProgressBar) listFooterView.findViewById(R.id.load_progress_bar);
-        loadMoreProgressBar.getIndeterminateDrawable().setColorFilter(Color.BLACK, PorterDuff.Mode.MULTIPLY);
-
-        loadMoreTextView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                isLoadingMore = true;
-                loadMore();
-            }
-        });
-
-        // prevent the progress bar covering by action bar.
-        int topToPadding = 100;
-        refreshLayout.setProgressViewOffset(false, 0, topToPadding);
-
+        refreshLayout.setProgressViewOffset(false, 0, refreshProgressBarOffset);
         refreshLayout.setColorSchemeResources(R.color.primary_material_dark);
-
         refreshLayout.setOnRefreshListener(new RefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -161,53 +164,6 @@ public class ContentFragment extends ListFragment implements
         }
         Log.d(XinyueApi.XINYUE_LOG_TAG, category.getDisplayName()
                 + " refresh layout refreshing status is " + refreshLayout.isRefreshing());
-        fillData();
-
-        return contentFragmentView;
-    }
-
-    private void setActionBarTitleAndElevation() {
-        ActionBar supportActionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
-        if (supportActionBar != null) {
-            supportActionBar.setTitle(getActivity().getString(R.string.app_name));
-            supportActionBar.setElevation(0);
-        }
-    }
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        listView = getListView();
-        listView.setDividerHeight(2);
-
-        listView.addFooterView(listFooterView);
-        refreshLayout.setChildView(listView);
-
-    }
-
-    private void loadMore() {
-        loadMoreTextView.setVisibility(View.GONE);
-        loadMoreProgressBar.setVisibility(View.VISIBLE);
-        loadNext(nextPageIndex);
-    }
-
-    private void parseArgument() {
-        Bundle args = getArguments();
-        category = Category.valueOf(args.getString(KEY_CATEGORY));
-    }
-
-    // open the post detail if an entry is clicked.
-    @Override
-    public void onListItemClick(ListView l, View v, int position, long id) {
-        super.onListItemClick(l, v, position, id);
-        Intent i = new Intent(getActivity(), PostDetailActivity.class);
-        Log.d(XinyueApi.XINYUE_LOG_TAG, String.valueOf(id));
-        Uri postUri = Uri.parse(PostContentProvider.CONTENT_URI + "/" + id);
-        i.putExtra(PostContentProvider.CONTENT_ITEM_TYPE, postUri);
-
-        startActivity(i);
-        getActivity().overridePendingTransition(R.anim.enter, R.anim.exit);
     }
 
     private void fillData() {
@@ -242,8 +198,6 @@ public class ContentFragment extends ListFragment implements
 
         Bundle args = new Bundle();
         args.putString(KEY_PAGE, String.valueOf(FIRST_PAGE_INDEX));
-        //getLoaderManager().initLoader(getLoaderId(category), args, this);
-        //getLoaderManager().initLoader(0, args, this);
         getLoaderManager().restartLoader(0, args, this);
     }
 
@@ -257,22 +211,59 @@ public class ContentFragment extends ListFragment implements
                 .cacheInMemory(true)
                 .cacheOnDisk(true)
                 .considerExifParams(true).build();
-        //.displayer(new RoundedBitmapDisplayer(20)).build();
-
-        ImageLoadingListener animateFirstListener = new AnimateFirstDisplayListener();
 
         ImageView coverView = (ImageView) view.findViewById(R.id.cover);
 
-        // ImageLoader.getInstance().displayImage(imageUri, coverView, options, animateFirstListener);
-        //ImageLoader.getInstance().displayImage(imageUri, coverView, options);
         ImageAware imageAware = new ImageViewAware(coverView, false);
         ImageLoader.getInstance().displayImage(imageUri, imageAware, options);
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        listView = getListView();
+        listView.setDividerHeight(2);
+
+        View listFooterView = getActivity().getLayoutInflater().inflate(R.layout.listview_footer, null);
+        loadMoreTextView = (TextView) listFooterView.findViewById(R.id.text_more);
+        loadMoreProgressBar = (ProgressBar) listFooterView.findViewById(R.id.load_progress_bar);
+        loadMoreProgressBar.getIndeterminateDrawable().setColorFilter(Color.BLACK, PorterDuff.Mode.MULTIPLY);
+        loadMoreTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                isLoadingMore = true;
+                loadMore();
+            }
+        });
+
+        listView.addFooterView(listFooterView);
+        refreshLayout.setChildView(listView);
+
+    }
+
+    private void loadMore() {
+        loadMoreTextView.setVisibility(View.GONE);
+        loadMoreProgressBar.setVisibility(View.VISIBLE);
+        loadNext(nextPageIndex);
+    }
+
+    // open the post detail if an entry is clicked.
+    @Override
+    public void onListItemClick(ListView l, View v, int position, long id) {
+        super.onListItemClick(l, v, position, id);
+        Intent i = new Intent(getActivity(), PostDetailActivity.class);
+        Log.d(XinyueApi.XINYUE_LOG_TAG, String.valueOf(id));
+        Uri postUri = Uri.parse(PostContentProvider.CONTENT_URI + "/" + id);
+        i.putExtra(PostContentProvider.CONTENT_ITEM_TYPE, postUri);
+
+        startActivity(i);
+        getActivity().overridePendingTransition(R.anim.enter, R.anim.exit);
     }
 
     private void loadNext(int pageNumber) {
         Bundle args = new Bundle();
         args.putString(KEY_PAGE, String.valueOf(pageNumber));
-        //getLoaderManager().restartLoader(getLoaderId(category), args, this);
         getLoaderManager().restartLoader(0, args, this);
         Log.d(XinyueApi.XINYUE_LOG_TAG, "restart loader for category: " + category.getDisplayName());
 
@@ -369,7 +360,6 @@ public class ContentFragment extends ListFragment implements
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         cursorAdapter.swapCursor(data);
-        //refreshLayout.setRefreshing(false);
     }
 
     @Override
