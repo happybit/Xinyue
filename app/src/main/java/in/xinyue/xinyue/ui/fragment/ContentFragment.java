@@ -1,19 +1,14 @@
 package in.xinyue.xinyue.ui.fragment;
 
-import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -26,35 +21,23 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import com.nostra13.universalimageloader.core.imageaware.ImageAware;
 import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
-import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
 
 import in.xinyue.xinyue.R;
 import in.xinyue.xinyue.api.XinyueApi;
 import in.xinyue.xinyue.contentprovider.PostContentProvider;
-import in.xinyue.xinyue.request.GsonRequest;
-import in.xinyue.xinyue.request.MySingleton;
+import in.xinyue.xinyue.contentprovider.PostsCursorLoader;
 import in.xinyue.xinyue.contentprovider.database.PostReaderContract;
-import in.xinyue.xinyue.request.json.PostJson;
-import in.xinyue.xinyue.request.json.TermsJson;
+import in.xinyue.xinyue.request.AsyncQueryRequest;
+import in.xinyue.xinyue.request.UILImageGetter;
 import in.xinyue.xinyue.api.Category;
-import in.xinyue.xinyue.request.DataAndWifiConnectionStatus;
 import in.xinyue.xinyue.view.ListFooterLayout;
 import in.xinyue.xinyue.view.RefreshLayout;
 import in.xinyue.xinyue.ui.activity.PostDetailActivity;
@@ -66,14 +49,14 @@ public class ContentFragment extends ListFragment implements
     public static final String KEY_PAGE = "page";
 
     private static final int FIRST_PAGE_INDEX = 1;
+    private static final int POSTS_PER_LOAD = 10;
 
     private int nextPageIndex = FIRST_PAGE_INDEX + 1;
     private Category category;
     private ListView listView;
-    private RefreshLayout refreshLayout;
-    private boolean isRefreshing = false;
-    private SimpleCursorAdapter cursorAdapter;
     private ListFooterLayout listFooter;
+    private RefreshLayout refreshLayout;
+    private SimpleCursorAdapter cursorAdapter;
 
     /**
      * Use this factory method to create a new instance of
@@ -186,10 +169,12 @@ public class ContentFragment extends ListFragment implements
         refreshLayout.setOnRefreshListener(new RefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                isRefreshing = true;
+                //isRefreshing = true;
+                setRefreshing();
                 loadPage(FIRST_PAGE_INDEX);
             }
         });
+
     }
 
     private void setRefreshing() {
@@ -202,48 +187,51 @@ public class ContentFragment extends ListFragment implements
         String[] from = new String[] {PostReaderContract.PostTable.COLUMN_NAME_TITLE,
                 PostReaderContract.PostTable.COLUMN_NAME_COVER};
         int[] to = new int[] {R.id.title, R.id.cover};
-
         cursorAdapter = new SimpleCursorAdapter(getActivity(), R.layout.post_row, null, from, to, 0);
-
-        SimpleCursorAdapter.ViewBinder savb =
-                new SimpleCursorAdapter.ViewBinder() {
-                    @Override
-                    public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
-                        if (columnIndex == cursor.
-                                getColumnIndexOrThrow(PostReaderContract.PostTable.COLUMN_NAME_TITLE)) {
-                            TextView titleView = (TextView) view.findViewById(R.id.title);
-                            String title = cursor.getString(columnIndex);
-                            titleView.setText(title);
-                            return true;
-                        } else if (columnIndex == cursor.
-                                getColumnIndexOrThrow(PostReaderContract.PostTable.COLUMN_NAME_COVER)) {
-                            setCoverResource(view, cursor);
-                            return true;
-                        }
-
-                        return false;
-                    }
-                };
-
-        cursorAdapter.setViewBinder(savb);
+        cursorAdapter.setViewBinder(new RowViewBinder());
         setListAdapter(cursorAdapter);
     }
 
-    private void setCoverResource(View view, Cursor cursor) {
-        String imageUri = cursor.getString(cursor.
-                getColumnIndexOrThrow(PostReaderContract.PostTable.COLUMN_NAME_COVER));
-        DisplayImageOptions options = new DisplayImageOptions.Builder()
-                .showImageOnLoading(R.color.primary_material_light)
-                .showImageForEmptyUri(R.drawable.fail_empty_image)
-                .showImageOnFail(R.drawable.fail_empty_image)
-                .cacheInMemory(true)
-                .cacheOnDisk(true)
-                .considerExifParams(true).build();
+    // view binder to set title and cover for each row.
+    private class RowViewBinder implements SimpleCursorAdapter.ViewBinder {
+        @Override
+        public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
+            if (isTitle(cursor, columnIndex)) {
+                setTitle(view, cursor);
+            } else if (isCover(cursor, columnIndex)) {
+                setCover(view, cursor);
+            }
 
-        ImageView coverView = (ImageView) view.findViewById(R.id.cover);
+            return false;
+        }
 
-        ImageAware imageAware = new ImageViewAware(coverView, false);
-        ImageLoader.getInstance().displayImage(imageUri, imageAware, options);
+        private boolean isTitle(Cursor cursor, int columnIndex) {
+            return columnIndex == cursor.getColumnIndexOrThrow(PostReaderContract.
+                    PostTable.COLUMN_NAME_TITLE);
+        }
+
+        private boolean setTitle(View view, Cursor cursor) {
+            TextView titleView = (TextView) view.findViewById(R.id.title);
+            String title = cursor.getString(cursor.getColumnIndexOrThrow(PostReaderContract.
+                    PostTable.COLUMN_NAME_TITLE));
+            titleView.setText(title);
+            return true;
+        }
+
+        private boolean isCover(Cursor cursor, int columnIndex) {
+            return columnIndex == cursor.getColumnIndexOrThrow(PostReaderContract.
+                    PostTable.COLUMN_NAME_COVER);
+        }
+
+        private boolean setCover(View view, Cursor cursor) {
+            String imageUri = cursor.getString(cursor.
+                    getColumnIndexOrThrow(PostReaderContract.PostTable.COLUMN_NAME_COVER));
+            ImageView coverView = (ImageView) view.findViewById(R.id.cover);
+            ImageAware imageAware = new ImageViewAware(coverView, false);
+            DisplayImageOptions options = UILImageGetter.getDisplayImageOptions();
+            ImageLoader.getInstance().displayImage(imageUri, imageAware, options);
+            return true;
+        }
     }
 
     private void restartLoader(String value) {
@@ -283,65 +271,63 @@ public class ContentFragment extends ListFragment implements
         String[] postProjection = {PostReaderContract.PostTable._ID,
                 PostReaderContract.PostTable.COLUMN_NAME_TITLE,
                 PostReaderContract.PostTable.COLUMN_NAME_COVER};
-
         String selection = PostReaderContract.PostTable.COLUMN_NAME_CATEGORY + " LIKE LOWER(?)";
+        String[] selectionArgs = getCategoryMatchString();
+        String sortOrder = getSortOrder(pageNum);
+
+        PostsCursorLoader loader = null;
+        try {
+            loader = new PostsCursorLoader(getActivity(),
+                    PostContentProvider.CONTENT_URI,
+                    postProjection,
+                    selection,
+                    selectionArgs,
+                    sortOrder,
+                    category.getDisplayName(),
+                    pageNum);
+
+            dismissProgressBarIfPostsRetrieved();
+        } catch (AsyncQueryRequest.NoDataConnectionException e) {
+            Log.d(XinyueApi.XINYUE_LOG_TAG, e.toString());
+            dismissProgressBarAndMakeToastIfNoDataConnection();
+        } catch (AsyncQueryRequest.VolleyErrorException e) {
+            Log.d(XinyueApi.XINYUE_LOG_TAG, e.toString());
+            dismissProgressBarIfLoadFailed();
+        } catch (AsyncQueryRequest.NoMorePostsException e) {
+            Log.d(XinyueApi.XINYUE_LOG_TAG, e.toString());
+            dismissProgressBarWhenNoMorePosts();
+        } finally {
+            resetRefreshLayoutFlags();
+        }
+
+        return loader;
+    }
+
+    @NonNull
+    private String getSortOrder(String pageNum) {
+        // display the post in decedent order and add 10 more posts per load.
+        String totalDisplayedPostsAmount = getTotalDisplayedPostsAmount(pageNum);
+        return PostReaderContract.PostTable.
+                COLUMN_NAME_CREATED_DATE + " DESC" + totalDisplayedPostsAmount;
+    }
+
+    @NonNull
+    private String getTotalDisplayedPostsAmount(String pageNum) {
+        // if it's just refreshing, no need to limit the amount to 10 since $pageindex is 1.
+        int pageIndex = Integer.valueOf(pageNum);
+        return (refreshLayout.isRefreshing()) ? ("") : (" LIMIT " + pageIndex * POSTS_PER_LOAD);
+    }
+
+    private String[] getCategoryMatchString() {
         String categoryMatchString = category.getDisplayName();
+
+        // every category is displayed as "all; earrings;".
+        // Below code is trying to prevent the confusing of "rings" and "earrings".
         if (!category.equals(Category.all)) {
             categoryMatchString = "; " + categoryMatchString;
         }
-        String[] selectionArgs = new String[] {"%"+categoryMatchString+"%"};
 
-        String limitPostNumber = (isRefreshing) ?
-                ("") : (" LIMIT " + String.valueOf(Integer.valueOf(pageNum)*10));
-
-        Log.d(XinyueApi.XINYUE_LOG_TAG, "create loader for category: " + category.getDisplayName());
-        return (new CursorLoader(getActivity(),
-                PostContentProvider.CONTENT_URI, postProjection, selection, selectionArgs,
-                PostReaderContract.PostTable.
-                        COLUMN_NAME_CREATED_DATE + " DESC" + limitPostNumber) {
-            @Override
-            public Cursor loadInBackground() {
-                Cursor c = super.loadInBackground();
-                refreshLayout.setLoading(false);
-                Log.d(XinyueApi.XINYUE_LOG_TAG, "load in background for category: " + category.getDisplayName());
-
-                final DataAndWifiConnectionStatus connectionStatus = new DataAndWifiConnectionStatus();
-
-                if (connectionStatus.isDataConnected(getActivity())
-                        || connectionStatus.isWifiConnected(getActivity())) {
-                    asyncQueryRequest(PostContentProvider.CONTENT_URI,
-                            category.getDisplayName(), pageNum);
-                } else {
-                    // UI operation like Toast cannot perform in background thread without Looper.
-                    Handler handler = new Handler(Looper.getMainLooper());
-
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(getActivity(),
-                                    getActivity().getResources().
-                                            getString(R.string.data_connect_is_off),
-                                    Toast.LENGTH_SHORT).show();
-
-                            refreshLayout.setRefreshing(false);
-
-                            if (listFooter.isLoadingMore()) {
-                                if (nextPageIndex > 2) {
-                                    nextPageIndex--;
-                                }
-
-                                listFooter.displayLoadMoreTextViewWhenErrorEncountered();
-                            }
-                        }
-                    });
-
-                }
-
-                isRefreshing = false;
-
-                return c;
-            }
-        });
+        return new String[] {"%"+categoryMatchString+"%"};
     }
 
     @Override
@@ -364,7 +350,8 @@ public class ContentFragment extends ListFragment implements
     private void onClickRefresh() {
         listView.smoothScrollToPosition(0);
         refreshLayout.setRefreshing(true);
-        isRefreshing = true;
+        //isRefreshing = true;
+        setRefreshing();
         loadPage(FIRST_PAGE_INDEX);
     }
 
@@ -379,114 +366,80 @@ public class ContentFragment extends ListFragment implements
         cursorAdapter.swapCursor(null);
     }
 
-    public void asyncQueryRequest(Uri uri, String category, final String pageNumber) {
-        String url = String.format(XinyueApi.LIST, category, pageNumber);
-        Log.d(XinyueApi.XINYUE_LOG_TAG, "request url is: " + url);
-        GsonRequest<PostJson[]> gsonRequest = new GsonRequest<>(url, PostJson[].class, null,
-                new Response.Listener<PostJson[]>() {
-                    @Override
-                    public void onResponse(PostJson[] response) {
-                        List<PostJson> posts = Arrays.asList(response);
-
-                        if (posts.isEmpty()) {
-                            refreshLayout.setRefreshing(false);
-                            Log.d(XinyueApi.XINYUE_LOG_TAG, "Category " + ContentFragment.this.category.getDisplayName() + " refreshing disappear for empty response.");
-                            if (listFooter.isLoadingMore()) {
-                                listFooter.displayNoMoreTextView();
-                                refreshLayout.setOnLoadListener(null);
-                            }
-                            return;
-                        }
-
-                        for(int i=0; i<posts.size(); i++) {
-                            PostJson post = posts.get(i);
-                            ContentValues postValues = getPostValues(post);
-
-                            if (getActivity() == null) {
-                                return;
-                            }
-
-                            Uri providerUri = getActivity().getContentResolver().
-                                    insert(PostContentProvider.CONTENT_URI, postValues);
-
-                            if (providerUri != null) {
-                                Log.d(XinyueApi.XINYUE_LOG_TAG, "Insert " + providerUri.toString() +
-                                        " into database!");
-                            }
-                        }
-
-                        refreshLayout.setRefreshing(false);
-                        Log.d(XinyueApi.XINYUE_LOG_TAG, "Category " + ContentFragment.this.category.getDisplayName() + " refreshing disappear for complete response.");
-
-                        Log.d(XinyueApi.XINYUE_LOG_TAG, "isLoadingMore is " + listFooter.isLoadingMore());
-                        if (listFooter.isLoadingMore()) listFooter.displayLoadMoreTextView();
-                    }
-
-                    private ContentValues getPostValues(PostJson post) {
-                        String postId = String.valueOf(post.getID());
-                        String title = post.getTitle();
-                        String category = getCategory(post);
-                        String createddate = post.getDate();
-                        String link = post.getLink();
-
-                        String cover;
-                        if (post.getFeatured_image() != null) {
-                            cover = post.getFeatured_image().
-                                    getSource();
-                        } else {
-                            cover = "drawable://" + R.drawable.fail_empty_image;
-                        }
-
-                        String content = post.getContent();
-
-                        ContentValues postValues = new ContentValues();
-                        postValues.put(PostReaderContract.PostTable.COLUMN_NAME_POST_ID, postId);
-                        postValues.put(PostReaderContract.PostTable.COLUMN_NAME_TITLE, title);
-                        postValues.put(PostReaderContract.PostTable.COLUMN_NAME_CATEGORY, category);
-                        postValues.put(PostReaderContract.PostTable.COLUMN_NAME_COVER, cover);
-                        postValues.put(PostReaderContract.PostTable.COLUMN_NAME_CREATED_DATE, createddate);
-                        postValues.put(PostReaderContract.PostTable.COLUMN_NAME_LINK, link);
-                        postValues.put(PostReaderContract.PostTable.COLUMN_NAME_CONTENT, content);
-                        return postValues;
-                    }
-
-                    private String getCategory(PostJson post) {
-                        List<TermsJson.CategoryJson> categories = post.getTerms().getCategory();
-
-                        StringBuilder categorySb = new StringBuilder();
-
-                        for (TermsJson.CategoryJson category : categories) {
-                            String slugName = category.getSlug() + "; ";
-                            categorySb.append(slugName);
-                        }
-
-                        return categorySb.toString();
-                    }
-                }, new Response.ErrorListener() {
+    private void dismissProgressBarAndMakeToastIfNoDataConnection() {
+        // UI operation like Toast cannot perform in background thread without Looper.
+        Handler handler = new Handler(Looper.getMainLooper());
+        handler.post(new Runnable() {
             @Override
-            public void onErrorResponse(VolleyError volleyError) {
-                Log.d(XinyueApi.XINYUE_LOG_TAG, volleyError.toString());
-                refreshLayout.setRefreshing(false);
-
-                if (listFooter.isLoadingMore()) {
-                    if (nextPageIndex > 2) {
-                        nextPageIndex--;
-                    }
-                    listFooter.displayLoadMoreTextViewWhenErrorEncountered();
-                }
-
-                if (getActivity() != null) {
-                    Toast.makeText(getActivity(), getActivity().getResources().
-                                    getString(R.string.data_connect_is_failed),
-                            Toast.LENGTH_SHORT).show();
-                }
-
+            public void run() {
+                makeToastToIndicateError();
+                dismissProgressBarWhenErrorEncountered();
             }
         });
+    }
+
+    private void makeToastToIndicateError() {
+        Toast.makeText(getActivity(),
+                getActivity().getResources().getString(R.string.data_connect_is_off),
+                Toast.LENGTH_SHORT).show();
+    }
+
+    private void dismissProgressBarWhenErrorEncountered() {
+        refreshLayout.setRefreshing(false);
+
+        if (listFooter.isLoadingMore()) {
+            keepNextPageIndexRemainTheSame();
+            listFooter.displayLoadMoreTextViewWhenErrorEncountered();
+        }
+    }
+
+    public void dismissProgressBarWhenNoMorePosts() {
+        refreshLayout.setRefreshing(false);
+
+        if (listFooter.isLoadingMore()) {
+            keepNextPageIndexRemainTheSame();
+            listFooter.displayNoMoreTextView();
+            refreshLayout.setOnLoadListener(null);
+        }
+    }
+
+    public void dismissProgressBarIfPostsRetrieved() {
+        refreshLayout.setRefreshing(false);
+        if (listFooter.isLoadingMore()) listFooter.displayLoadMoreTextView();
+    }
+
+    private void dismissProgressBarIfLoadFailed() {
+        refreshLayout.setRefreshing(false);
+
+        if (listFooter.isLoadingMore()) {
+            if (nextPageIndex > 2) {
+                nextPageIndex--;
+            }
+            listFooter.displayLoadMoreTextViewWhenErrorEncountered();
+        }
+
+        if (getActivity() != null) {
+            Toast.makeText(getActivity(), getActivity().getResources().
+                            getString(R.string.data_connect_is_failed),
+                    Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void keepNextPageIndexRemainTheSame() {
+        if (nextPageIndex > 2) {
+            nextPageIndex--;
+        }
+    }
+
+    public void resetRefreshLayoutFlags() {
+        refreshLayout.setLoading(false);
+        refreshLayout.setRefreshing(false);
+    }
 
 
-        MySingleton.getInstance(getActivity()).addToRequestQueue(gsonRequest);
 
+    public Category getCategory() {
+        return category;
     }
 
 }

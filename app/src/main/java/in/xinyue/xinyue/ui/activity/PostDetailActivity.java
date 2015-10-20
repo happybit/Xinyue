@@ -15,7 +15,7 @@ import android.widget.TextView;
 
 import in.xinyue.xinyue.R;
 import in.xinyue.xinyue.contentprovider.PostContentProvider;
-import in.xinyue.xinyue.request.MySingleton;
+import in.xinyue.xinyue.request.RequestSingleton;
 import in.xinyue.xinyue.contentprovider.database.PostReaderContract;
 import in.xinyue.xinyue.request.UILImageGetter;
 import in.xinyue.xinyue.api.Category;
@@ -193,6 +193,6 @@ public class PostDetailActivity extends SwipeBackActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        MySingleton.cancelAll(this);
+        RequestSingleton.cancelAll(this);
     }
 }

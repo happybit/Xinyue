@@ -39,13 +39,7 @@ public class UILImageGetter implements Html.ImageGetter {
         final URLDrawable urlDrawable = new URLDrawable();
         Log.d("XinyueLog", source);
 
-        DisplayImageOptions options = new DisplayImageOptions.Builder()
-                .showImageOnLoading(R.color.primary_material_light)
-                .showImageForEmptyUri(R.drawable.fail_empty_image)
-                .showImageOnFail(R.drawable.fail_empty_image)
-                .cacheInMemory(true)
-                .cacheOnDisk(true)
-                .considerExifParams(true).build();
+        DisplayImageOptions options = getDisplayImageOptions();
 
         ImageLoader.getInstance().loadImage(source, options, new SimpleImageLoadingListener() {
             @Override
@@ -60,6 +54,16 @@ public class UILImageGetter implements Html.ImageGetter {
         });
 
         return urlDrawable;
+    }
+
+    public static DisplayImageOptions getDisplayImageOptions() {
+        return new DisplayImageOptions.Builder()
+                .showImageOnLoading(R.color.primary_material_light)
+                .showImageForEmptyUri(R.drawable.fail_empty_image)
+                .showImageOnFail(R.drawable.fail_empty_image)
+                .cacheInMemory(true)
+                .cacheOnDisk(true)
+                .considerExifParams(true).build();
     }
 
     public Rect getRect(Bitmap bitmap) {

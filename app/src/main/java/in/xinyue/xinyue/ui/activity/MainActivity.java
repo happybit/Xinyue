@@ -24,7 +24,7 @@ import android.widget.Toast;
 import java.util.Locale;
 
 import in.xinyue.xinyue.R;
-import in.xinyue.xinyue.request.MySingleton;
+import in.xinyue.xinyue.request.RequestSingleton;
 import in.xinyue.xinyue.ui.fragment.AboutFragment;
 import in.xinyue.xinyue.ui.fragment.SettingsFragment;
 import in.xinyue.xinyue.ui.fragment.TabContainerFragment;
@@ -223,7 +223,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        MySingleton.cancelAll(this);
+        RequestSingleton.cancelAll(this);
     }
 
 }

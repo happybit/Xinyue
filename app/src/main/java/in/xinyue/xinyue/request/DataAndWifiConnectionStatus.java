@@ -9,17 +9,21 @@ public class DataAndWifiConnectionStatus {
     public DataAndWifiConnectionStatus() {
     }
 
-    public boolean isDataConnected(Activity activity) {
+    private static boolean isDataConnected(Context context) {
         ConnectivityManager connMgr = (ConnectivityManager)
-                activity.getSystemService(Context.CONNECTIVITY_SERVICE);
+                context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
         return networkInfo.isConnected();
     }
 
-    public boolean isWifiConnected(Activity activity) {
+    private static boolean isWifiConnected(Context context) {
         ConnectivityManager connMgr = (ConnectivityManager)
-                activity.getSystemService(Context.CONNECTIVITY_SERVICE);
+                context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
         return networkInfo.isConnected();
+    }
+
+    public static boolean isInternetConnected(Context context) {
+        return isDataConnected(context) || isWifiConnected(context);
     }
 }

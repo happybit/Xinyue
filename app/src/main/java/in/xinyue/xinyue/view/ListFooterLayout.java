@@ -39,9 +39,9 @@ public class ListFooterLayout {
         listFooterView = LayoutInflater.from(context).inflate(resource, null);
     }
 
-    public void initFooterTextView(int resource, View.OnClickListener l) {
+    public void initFooterTextView(int resource, View.OnClickListener listener) {
         footerTextView = (TextView) listFooterView.findViewById(resource);
-        footerTextView.setOnClickListener(l);
+        footerTextView.setOnClickListener(listener);
     }
 
     public void initLoadMoreProgressBar(int resource) {
