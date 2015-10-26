@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.support.v4.content.CursorLoader;
 
 import in.xinyue.xinyue.request.AsyncQueryRequest;
+import in.xinyue.xinyue.ui.fragment.ContentFragment;
 
 public class PostsCursorLoader extends CursorLoader {
 
@@ -13,18 +14,15 @@ public class PostsCursorLoader extends CursorLoader {
 
     public PostsCursorLoader(Context context, Uri uri, String[] projection, String selection,
                              String[] selectionArgs, String sortOrder,
-                             String category, String pageNum) {
+                             String category, String pageNum, ContentFragment fragment) {
         super(context, uri, projection, selection, selectionArgs, sortOrder);
-        request = new AsyncQueryRequest(context, category, pageNum);
+        request = new AsyncQueryRequest(context, category, pageNum, fragment);
     }
 
     @Override
     public Cursor loadInBackground() {
         Cursor c = super.loadInBackground();
-        request.loadingDataAndRefreshLayout();
+        request.loadingPage();
         return c;
     }
-
-
-
 }

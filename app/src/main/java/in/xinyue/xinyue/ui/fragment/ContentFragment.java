@@ -4,11 +4,10 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -52,6 +51,7 @@ public class ContentFragment extends ListFragment implements
     private static final int POSTS_PER_LOAD = 10;
 
     private int nextPageIndex = FIRST_PAGE_INDEX + 1;
+
     private Category category;
     private ListView listView;
     private ListFooterLayout listFooter;
@@ -92,19 +92,19 @@ public class ContentFragment extends ListFragment implements
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View contentFragmentView = inflater.inflate(R.layout.fragment_content, container, false);
-        initializeViewAndData(contentFragmentView);
+        initialization(contentFragmentView);
         return contentFragmentView;
     }
 
-    private void initializeViewAndData(View view) {
-        initializeRefreshLayout(view);
-        initializeActionBar();
-        initializeListFooter();
-        createAndSetListAdapter();
+    private void initialization(View view) {
+        initRefreshLayout(view);
+        initActionBar();
+        initListFooter();
+        initAdapter();
         restartLoader(String.valueOf(FIRST_PAGE_INDEX));
     }
 
-    private void initializeActionBar() {
+    private void initActionBar() {
         ActionBar supportActionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
         if (supportActionBar != null) {
             supportActionBar.setTitle(getActivity().getString(R.string.app_name));
@@ -112,7 +112,7 @@ public class ContentFragment extends ListFragment implements
         }
     }
 
-    private void initializeListFooter() {
+    private void initListFooter() {
         listFooter = new ListFooterLayout(getActivity());
         listFooter.inflateListFooter(R.layout.listview_footer);
         listFooter.initFooterTextView(R.id.text_more,
@@ -125,11 +125,11 @@ public class ContentFragment extends ListFragment implements
         listFooter.initLoadMoreProgressBar(R.id.load_progress_bar);
     }
 
-    private void initializeRefreshLayout(View view) {
+    private void initRefreshLayout(View view) {
         refreshLayout = (RefreshLayout) view.findViewById(R.id.swipe_layout);
         setRefreshLayoutOffsetAndColorScheme();
         setListenersForRefreshLayout();
-        setRefreshing();
+        displayRefreshProgressBar();
     }
 
     private void setRefreshLayoutOffsetAndColorScheme() {
@@ -169,63 +169,62 @@ public class ContentFragment extends ListFragment implements
         refreshLayout.setOnRefreshListener(new RefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                //isRefreshing = true;
-                setRefreshing();
+                displayRefreshProgressBar();
                 loadPage(FIRST_PAGE_INDEX);
             }
         });
-
     }
 
-    private void setRefreshing() {
+    private void displayRefreshProgressBar() {
         if (!refreshLayout.isRefreshing()) {
             refreshLayout.setRefreshing(true);
         }
     }
 
-    private void createAndSetListAdapter() {
+    private void dismissRefreshProgressBar() {
+        if (refreshLayout.isRefreshing()) {
+            refreshLayout.setRefreshing(false);
+        }
+    }
+
+    private void initAdapter() {
         String[] from = new String[] {PostReaderContract.PostTable.COLUMN_NAME_TITLE,
                 PostReaderContract.PostTable.COLUMN_NAME_COVER};
         int[] to = new int[] {R.id.title, R.id.cover};
         cursorAdapter = new SimpleCursorAdapter(getActivity(), R.layout.post_row, null, from, to, 0);
-        cursorAdapter.setViewBinder(new RowViewBinder());
+        cursorAdapter.setViewBinder(new ListViewBinder());
         setListAdapter(cursorAdapter);
     }
 
     // view binder to set title and cover for each row.
-    private class RowViewBinder implements SimpleCursorAdapter.ViewBinder {
+    private class ListViewBinder implements SimpleCursorAdapter.ViewBinder {
         @Override
         public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
-            if (isTitle(cursor, columnIndex)) {
-                setTitle(view, cursor);
-            } else if (isCover(cursor, columnIndex)) {
-                setCover(view, cursor);
+            int titleIndex = cursor.getColumnIndexOrThrow(PostReaderContract.
+                    PostTable.COLUMN_NAME_TITLE);
+            int coverIndex = cursor.getColumnIndexOrThrow(PostReaderContract.
+                    PostTable.COLUMN_NAME_COVER);
+
+            // TODO: need to refactor
+            String content = cursor.getString(columnIndex);
+
+            if (columnIndex == titleIndex) {
+                return setTitle(view, content);
+            } else if (columnIndex == coverIndex) {
+                return setCover(view, content);
             }
 
             return false;
         }
 
-        private boolean isTitle(Cursor cursor, int columnIndex) {
-            return columnIndex == cursor.getColumnIndexOrThrow(PostReaderContract.
-                    PostTable.COLUMN_NAME_TITLE);
-        }
-
-        private boolean setTitle(View view, Cursor cursor) {
+        private boolean setTitle(View view, String title) {
             TextView titleView = (TextView) view.findViewById(R.id.title);
-            String title = cursor.getString(cursor.getColumnIndexOrThrow(PostReaderContract.
-                    PostTable.COLUMN_NAME_TITLE));
             titleView.setText(title);
             return true;
         }
 
-        private boolean isCover(Cursor cursor, int columnIndex) {
-            return columnIndex == cursor.getColumnIndexOrThrow(PostReaderContract.
-                    PostTable.COLUMN_NAME_COVER);
-        }
-
-        private boolean setCover(View view, Cursor cursor) {
-            String imageUri = cursor.getString(cursor.
-                    getColumnIndexOrThrow(PostReaderContract.PostTable.COLUMN_NAME_COVER));
+        private boolean setCover(View view, String imageUri) {
+            Log.d(XinyueApi.XINYUE_LOG_TAG, "image url: " + imageUri);
             ImageView coverView = (ImageView) view.findViewById(R.id.cover);
             ImageAware imageAware = new ImageViewAware(coverView, false);
             DisplayImageOptions options = UILImageGetter.getDisplayImageOptions();
@@ -234,9 +233,9 @@ public class ContentFragment extends ListFragment implements
         }
     }
 
-    private void restartLoader(String value) {
+    private void restartLoader(String pageNum) {
         Bundle args = new Bundle();
-        args.putString(KEY_PAGE, value);
+        args.putString(KEY_PAGE, pageNum);
         getLoaderManager().restartLoader(0, args, this);
     }
 
@@ -275,32 +274,15 @@ public class ContentFragment extends ListFragment implements
         String[] selectionArgs = getCategoryMatchString();
         String sortOrder = getSortOrder(pageNum);
 
-        PostsCursorLoader loader = null;
-        try {
-            loader = new PostsCursorLoader(getActivity(),
-                    PostContentProvider.CONTENT_URI,
-                    postProjection,
-                    selection,
-                    selectionArgs,
-                    sortOrder,
-                    category.getDisplayName(),
-                    pageNum);
-
-            dismissProgressBarIfPostsRetrieved();
-        } catch (AsyncQueryRequest.NoDataConnectionException e) {
-            Log.d(XinyueApi.XINYUE_LOG_TAG, e.toString());
-            dismissProgressBarAndMakeToastIfNoDataConnection();
-        } catch (AsyncQueryRequest.VolleyErrorException e) {
-            Log.d(XinyueApi.XINYUE_LOG_TAG, e.toString());
-            dismissProgressBarIfLoadFailed();
-        } catch (AsyncQueryRequest.NoMorePostsException e) {
-            Log.d(XinyueApi.XINYUE_LOG_TAG, e.toString());
-            dismissProgressBarWhenNoMorePosts();
-        } finally {
-            resetRefreshLayoutFlags();
-        }
-
-        return loader;
+        return new PostsCursorLoader(getActivity(),
+                PostContentProvider.CONTENT_URI,
+                postProjection,
+                selection,
+                selectionArgs,
+                sortOrder,
+                category.getDisplayName(),
+                pageNum,
+                this);
     }
 
     @NonNull
@@ -323,11 +305,76 @@ public class ContentFragment extends ListFragment implements
 
         // every category is displayed as "all; earrings;".
         // Below code is trying to prevent the confusing of "rings" and "earrings".
+        // For instance, "rings" will return "; rings".
         if (!category.equals(Category.all)) {
             categoryMatchString = "; " + categoryMatchString;
         }
 
         return new String[] {"%"+categoryMatchString+"%"};
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        cursorAdapter.swapCursor(data);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        // data is not available anymore, delete reference
+        cursorAdapter.swapCursor(null);
+    }
+
+    public void dismissProgressBarAndMakeToastIfNoDataConnection() {
+        makeToastToIndicateError(R.string.data_connect_is_off);
+        dismissProgressBarIfErrorEncountered();
+    }
+
+    private void makeToastToIndicateError(int resource) {
+        if (getActivity() != null) {
+            Toast.makeText(getActivity(),
+                    getActivity().getResources().getString(resource),
+                    Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void dismissProgressBarIfErrorEncountered() {
+        dismissRefreshProgressBar();
+
+        if (listFooter.isLoadingMore()) {
+            keepNextPageIndexRemainTheSame();
+            listFooter.displayLoadMoreTextViewWhenErrorEncountered();
+        }
+    }
+
+    public void dismissProgressBarIfNoMorePosts() {
+        dismissRefreshProgressBar();
+
+        if (listFooter.isLoadingMore()) {
+            keepNextPageIndexRemainTheSame();
+            listFooter.displayNoMoreTextView();
+            refreshLayout.setOnLoadListener(null);
+        }
+    }
+
+    public void dismissProgressBarIfPostsRetrieved() {
+        dismissRefreshProgressBar();
+        if (listFooter.isLoadingMore()) listFooter.displayLoadMoreTextView();
+    }
+
+    public void dismissProgressBarIfLoadFailed() {
+        makeToastToIndicateError(R.string.data_connect_is_failed);
+        dismissProgressBarIfErrorEncountered();
+    }
+
+    private void keepNextPageIndexRemainTheSame() {
+        if (nextPageIndex > 2) {
+            nextPageIndex--;
+        }
+    }
+
+    private void resetRefreshLayout() {
+        refreshLayout.setLoading(false);
+        dismissRefreshProgressBar();
     }
 
     @Override
@@ -349,97 +396,8 @@ public class ContentFragment extends ListFragment implements
 
     private void onClickRefresh() {
         listView.smoothScrollToPosition(0);
-        refreshLayout.setRefreshing(true);
-        //isRefreshing = true;
-        setRefreshing();
+        displayRefreshProgressBar();
         loadPage(FIRST_PAGE_INDEX);
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        cursorAdapter.swapCursor(data);
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-        // data is not available anymore, delete reference
-        cursorAdapter.swapCursor(null);
-    }
-
-    private void dismissProgressBarAndMakeToastIfNoDataConnection() {
-        // UI operation like Toast cannot perform in background thread without Looper.
-        Handler handler = new Handler(Looper.getMainLooper());
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                makeToastToIndicateError();
-                dismissProgressBarWhenErrorEncountered();
-            }
-        });
-    }
-
-    private void makeToastToIndicateError() {
-        Toast.makeText(getActivity(),
-                getActivity().getResources().getString(R.string.data_connect_is_off),
-                Toast.LENGTH_SHORT).show();
-    }
-
-    private void dismissProgressBarWhenErrorEncountered() {
-        refreshLayout.setRefreshing(false);
-
-        if (listFooter.isLoadingMore()) {
-            keepNextPageIndexRemainTheSame();
-            listFooter.displayLoadMoreTextViewWhenErrorEncountered();
-        }
-    }
-
-    public void dismissProgressBarWhenNoMorePosts() {
-        refreshLayout.setRefreshing(false);
-
-        if (listFooter.isLoadingMore()) {
-            keepNextPageIndexRemainTheSame();
-            listFooter.displayNoMoreTextView();
-            refreshLayout.setOnLoadListener(null);
-        }
-    }
-
-    public void dismissProgressBarIfPostsRetrieved() {
-        refreshLayout.setRefreshing(false);
-        if (listFooter.isLoadingMore()) listFooter.displayLoadMoreTextView();
-    }
-
-    private void dismissProgressBarIfLoadFailed() {
-        refreshLayout.setRefreshing(false);
-
-        if (listFooter.isLoadingMore()) {
-            if (nextPageIndex > 2) {
-                nextPageIndex--;
-            }
-            listFooter.displayLoadMoreTextViewWhenErrorEncountered();
-        }
-
-        if (getActivity() != null) {
-            Toast.makeText(getActivity(), getActivity().getResources().
-                            getString(R.string.data_connect_is_failed),
-                    Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void keepNextPageIndexRemainTheSame() {
-        if (nextPageIndex > 2) {
-            nextPageIndex--;
-        }
-    }
-
-    public void resetRefreshLayoutFlags() {
-        refreshLayout.setLoading(false);
-        refreshLayout.setRefreshing(false);
-    }
-
-
-
-    public Category getCategory() {
-        return category;
     }
 
 }
