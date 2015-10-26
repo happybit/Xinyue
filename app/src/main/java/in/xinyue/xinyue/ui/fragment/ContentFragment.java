@@ -32,9 +32,9 @@ import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
 import in.xinyue.xinyue.R;
 import in.xinyue.xinyue.api.XinyueApi;
 import in.xinyue.xinyue.contentprovider.PostContentProvider;
-import in.xinyue.xinyue.contentprovider.PostsCursorLoader;
 import in.xinyue.xinyue.contentprovider.database.PostReaderContract;
-import in.xinyue.xinyue.request.AsyncQueryRequest;
+import in.xinyue.xinyue.request.AsyncQuery;
+import in.xinyue.xinyue.request.RequestCallback;
 import in.xinyue.xinyue.request.UILImageGetter;
 import in.xinyue.xinyue.api.Category;
 import in.xinyue.xinyue.view.ListFooterLayout;
@@ -57,6 +57,7 @@ public class ContentFragment extends ListFragment implements
     private ListFooterLayout listFooter;
     private RefreshLayout refreshLayout;
     private SimpleCursorAdapter cursorAdapter;
+    private AsyncQuery asyncQuery;
 
     /**
      * Use this factory method to create a new instance of
@@ -81,6 +82,29 @@ public class ContentFragment extends ListFragment implements
         super.onCreate(savedInstanceState);
         parseCategoryFromArgs();
         setHasOptionsMenu(true);
+
+        RequestCallback requestCallback = new RequestCallback() {
+            @Override
+            public void onRetrievePosts() {
+                dismissProgressBarIfPostsRetrieved();
+            }
+
+            @Override
+            public void onVolleyError() {
+                dismissProgressBarIfLoadFailed();
+            }
+
+            @Override
+            public void onNoMorePosts() {
+                dismissProgressBarIfNoMorePosts();
+            }
+
+            @Override
+            public void onNoDataConnection() {
+                dismissProgressBarAndMakeToastIfNoDataConnection();
+            }
+        };
+        asyncQuery = new AsyncQuery(getActivity(), category.getDisplayName(), requestCallback);
     }
 
     private void parseCategoryFromArgs() {
@@ -101,7 +125,7 @@ public class ContentFragment extends ListFragment implements
         initActionBar();
         initListFooter();
         initAdapter();
-        restartLoader(String.valueOf(FIRST_PAGE_INDEX));
+        restartLoaderAndRequestPage(FIRST_PAGE_INDEX);
     }
 
     private void initActionBar() {
@@ -160,7 +184,7 @@ public class ContentFragment extends ListFragment implements
 
     private void loadPage(int pageNumber) {
         Log.d(XinyueApi.XINYUE_LOG_TAG, "nextPageIndex is:" + nextPageIndex);
-        restartLoader(String.valueOf(pageNumber));
+        restartLoaderAndRequestPage(pageNumber);
 
         if (listFooter.isLoadingMore()) nextPageIndex = pageNumber + 1;
     }
@@ -233,10 +257,11 @@ public class ContentFragment extends ListFragment implements
         }
     }
 
-    private void restartLoader(String pageNum) {
+    private void restartLoaderAndRequestPage(int pageIndex) {
         Bundle args = new Bundle();
-        args.putString(KEY_PAGE, pageNum);
+        args.putInt(KEY_PAGE, pageIndex);
         getLoaderManager().restartLoader(0, args, this);
+        asyncQuery.loadingPage(pageIndex);
     }
 
     @Override
@@ -265,28 +290,25 @@ public class ContentFragment extends ListFragment implements
     // create a new loader after the initLoader() call
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        final String pageNum = args.getString(KEY_PAGE);
+        final int pageIndex = args.getInt(KEY_PAGE);
 
         String[] postProjection = {PostReaderContract.PostTable._ID,
                 PostReaderContract.PostTable.COLUMN_NAME_TITLE,
                 PostReaderContract.PostTable.COLUMN_NAME_COVER};
         String selection = PostReaderContract.PostTable.COLUMN_NAME_CATEGORY + " LIKE LOWER(?)";
         String[] selectionArgs = getCategoryMatchString();
-        String sortOrder = getSortOrder(pageNum);
+        String sortOrder = getSortOrder(pageIndex);
 
-        return new PostsCursorLoader(getActivity(),
+        return new CursorLoader(getActivity(),
                 PostContentProvider.CONTENT_URI,
                 postProjection,
                 selection,
                 selectionArgs,
-                sortOrder,
-                category.getDisplayName(),
-                pageNum,
-                this);
+                sortOrder);
     }
 
     @NonNull
-    private String getSortOrder(String pageNum) {
+    private String getSortOrder(int pageNum) {
         // display the post in decedent order and add 10 more posts per load.
         String totalDisplayedPostsAmount = getTotalDisplayedPostsAmount(pageNum);
         return PostReaderContract.PostTable.
@@ -294,9 +316,8 @@ public class ContentFragment extends ListFragment implements
     }
 
     @NonNull
-    private String getTotalDisplayedPostsAmount(String pageNum) {
+    private String getTotalDisplayedPostsAmount(int pageIndex) {
         // if it's just refreshing, no need to limit the amount to 10 since $pageindex is 1.
-        int pageIndex = Integer.valueOf(pageNum);
         return (refreshLayout.isRefreshing()) ? ("") : (" LIMIT " + pageIndex * POSTS_PER_LOAD);
     }
 
@@ -337,7 +358,7 @@ public class ContentFragment extends ListFragment implements
         }
     }
 
-    public void dismissProgressBarIfErrorEncountered() {
+    private void dismissProgressBarIfErrorEncountered() {
         dismissRefreshProgressBar();
 
         if (listFooter.isLoadingMore()) {
@@ -346,7 +367,7 @@ public class ContentFragment extends ListFragment implements
         }
     }
 
-    public void dismissProgressBarIfNoMorePosts() {
+    private void dismissProgressBarIfNoMorePosts() {
         dismissRefreshProgressBar();
 
         if (listFooter.isLoadingMore()) {
@@ -356,12 +377,12 @@ public class ContentFragment extends ListFragment implements
         }
     }
 
-    public void dismissProgressBarIfPostsRetrieved() {
+    private void dismissProgressBarIfPostsRetrieved() {
         dismissRefreshProgressBar();
         if (listFooter.isLoadingMore()) listFooter.displayLoadMoreTextView();
     }
 
-    public void dismissProgressBarIfLoadFailed() {
+    private void dismissProgressBarIfLoadFailed() {
         makeToastToIndicateError(R.string.data_connect_is_failed);
         dismissProgressBarIfErrorEncountered();
     }
@@ -370,11 +391,6 @@ public class ContentFragment extends ListFragment implements
         if (nextPageIndex > 2) {
             nextPageIndex--;
         }
-    }
-
-    private void resetRefreshLayout() {
-        refreshLayout.setLoading(false);
-        dismissRefreshProgressBar();
     }
 
     @Override
