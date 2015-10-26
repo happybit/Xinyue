@@ -82,8 +82,12 @@ public class ContentFragment extends ListFragment implements
         super.onCreate(savedInstanceState);
         parseCategoryFromArgs();
         setHasOptionsMenu(true);
+        asyncQuery = new AsyncQuery(getActivity(),
+                category.getDisplayName(), createRequestCallback());
+    }
 
-        RequestCallback requestCallback = new RequestCallback() {
+    private RequestCallback createRequestCallback() {
+        return new RequestCallback() {
             @Override
             public void onRetrievePosts() {
                 dismissProgressBarIfPostsRetrieved();
@@ -104,7 +108,6 @@ public class ContentFragment extends ListFragment implements
                 dismissProgressBarAndMakeToastIfNoDataConnection();
             }
         };
-        asyncQuery = new AsyncQuery(getActivity(), category.getDisplayName(), requestCallback);
     }
 
     private void parseCategoryFromArgs() {
@@ -278,6 +281,7 @@ public class ContentFragment extends ListFragment implements
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
+        if (id == -1) return; // prevent crash when id is -1;
         Intent i = new Intent(getActivity(), PostDetailActivity.class);
         Uri postUri = Uri.parse(PostContentProvider.CONTENT_URI + "/" + id);
         i.putExtra(PostContentProvider.CONTENT_ITEM_TYPE, postUri);
