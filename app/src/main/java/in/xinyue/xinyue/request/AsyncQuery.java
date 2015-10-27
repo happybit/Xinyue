@@ -62,7 +62,7 @@ public class AsyncQuery {
         RequestSingleton.getInstance(context).addToRequestQueue(gsonRequest);
     }
 
-    public class ResponseListener implements Response.Listener<PostJson[]>  {
+    private class ResponseListener implements Response.Listener<PostJson[]>  {
         private Context context;
 
         public ResponseListener(Context context) {

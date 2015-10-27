@@ -12,7 +12,7 @@ import in.xinyue.xinyue.ui.fragment.ContentFragment;
 
 public class FragmentAdapter extends FragmentPagerAdapter {
 
-    final int PAGE_COUNT = 7;
+    final int PAGE_COUNT = Category.values().length;
     private String tabTitles[];
     //private String tabTitles[] = new String[] {"All"};
     private Context context;

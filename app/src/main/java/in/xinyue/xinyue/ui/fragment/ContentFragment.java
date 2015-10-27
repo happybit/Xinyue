@@ -18,16 +18,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
-import android.widget.TextView;
 import android.widget.Toast;
-
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.imageaware.ImageAware;
-import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
 
 import in.xinyue.xinyue.R;
 import in.xinyue.xinyue.api.XinyueApi;
@@ -35,8 +28,8 @@ import in.xinyue.xinyue.contentprovider.PostContentProvider;
 import in.xinyue.xinyue.contentprovider.database.PostReaderContract;
 import in.xinyue.xinyue.request.AsyncQuery;
 import in.xinyue.xinyue.request.RequestCallback;
-import in.xinyue.xinyue.request.UILImageGetter;
 import in.xinyue.xinyue.api.Category;
+import in.xinyue.xinyue.ui.adapter.ListViewBinder;
 import in.xinyue.xinyue.view.ListFooterLayout;
 import in.xinyue.xinyue.view.RefreshLayout;
 import in.xinyue.xinyue.ui.activity.PostDetailActivity;
@@ -90,21 +83,25 @@ public class ContentFragment extends ListFragment implements
         return new RequestCallback() {
             @Override
             public void onRetrievePosts() {
+                Log.d(XinyueApi.XINYUE_LOG_TAG, "dismiss progress bar when posts retrieved.");
                 dismissProgressBarIfPostsRetrieved();
             }
 
             @Override
             public void onVolleyError() {
+                Log.d(XinyueApi.XINYUE_LOG_TAG, "on volley error");
                 dismissProgressBarIfLoadFailed();
             }
 
             @Override
             public void onNoMorePosts() {
+                Log.d(XinyueApi.XINYUE_LOG_TAG, "no more posts");
                 dismissProgressBarIfNoMorePosts();
             }
 
             @Override
             public void onNoDataConnection() {
+                Log.d(XinyueApi.XINYUE_LOG_TAG, "no data connection");
                 dismissProgressBarAndMakeToastIfNoDataConnection();
             }
         };
@@ -185,19 +182,18 @@ public class ContentFragment extends ListFragment implements
         loadPage(nextPageIndex);
     }
 
-    private void loadPage(int pageNumber) {
+    private void loadPage(int pageIndex) {
         Log.d(XinyueApi.XINYUE_LOG_TAG, "nextPageIndex is:" + nextPageIndex);
-        restartLoaderAndRequestPage(pageNumber);
+        restartLoaderAndRequestPage(pageIndex);
 
-        if (listFooter.isLoadingMore()) nextPageIndex = pageNumber + 1;
+        if (listFooter.isLoadingMore()) nextPageIndex = pageIndex + 1;
     }
 
     private void setOnRefreshListener() {
         refreshLayout.setOnRefreshListener(new RefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                displayRefreshProgressBar();
-                loadPage(FIRST_PAGE_INDEX);
+                refreshList();
             }
         });
     }
@@ -218,52 +214,17 @@ public class ContentFragment extends ListFragment implements
         String[] from = new String[] {PostReaderContract.PostTable.COLUMN_NAME_TITLE,
                 PostReaderContract.PostTable.COLUMN_NAME_COVER};
         int[] to = new int[] {R.id.title, R.id.cover};
-        cursorAdapter = new SimpleCursorAdapter(getActivity(), R.layout.post_row, null, from, to, 0);
+        cursorAdapter = new SimpleCursorAdapter(getActivity(),
+                R.layout.post_row, null, from, to, 0);
         cursorAdapter.setViewBinder(new ListViewBinder());
         setListAdapter(cursorAdapter);
-    }
-
-    // view binder to set title and cover for each row.
-    private class ListViewBinder implements SimpleCursorAdapter.ViewBinder {
-        @Override
-        public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
-            int titleIndex = cursor.getColumnIndexOrThrow(PostReaderContract.
-                    PostTable.COLUMN_NAME_TITLE);
-            int coverIndex = cursor.getColumnIndexOrThrow(PostReaderContract.
-                    PostTable.COLUMN_NAME_COVER);
-
-            // TODO: need to refactor
-            String content = cursor.getString(columnIndex);
-
-            if (columnIndex == titleIndex) {
-                return setTitle(view, content);
-            } else if (columnIndex == coverIndex) {
-                return setCover(view, content);
-            }
-
-            return false;
-        }
-
-        private boolean setTitle(View view, String title) {
-            TextView titleView = (TextView) view.findViewById(R.id.title);
-            titleView.setText(title);
-            return true;
-        }
-
-        private boolean setCover(View view, String imageUri) {
-            Log.d(XinyueApi.XINYUE_LOG_TAG, "image url: " + imageUri);
-            ImageView coverView = (ImageView) view.findViewById(R.id.cover);
-            ImageAware imageAware = new ImageViewAware(coverView, false);
-            DisplayImageOptions options = UILImageGetter.getDisplayImageOptions();
-            ImageLoader.getInstance().displayImage(imageUri, imageAware, options);
-            return true;
-        }
     }
 
     private void restartLoaderAndRequestPage(int pageIndex) {
         Bundle args = new Bundle();
         args.putInt(KEY_PAGE, pageIndex);
         getLoaderManager().restartLoader(0, args, this);
+        refreshLayout.setLoading(false); // need to reset loading flag during each loading.
         asyncQuery.loadingPage(pageIndex);
     }
 
@@ -272,7 +233,10 @@ public class ContentFragment extends ListFragment implements
         super.onActivityCreated(savedInstanceState);
 
         listView = getListView();
-        listView.setDividerHeight(2);
+
+        int DIVIDER_HEIGHT = 2;
+        listView.setDividerHeight(DIVIDER_HEIGHT);
+
         listView.addFooterView(listFooter.getListFooterView());
         refreshLayout.setChildView(listView);
     }
@@ -280,8 +244,9 @@ public class ContentFragment extends ListFragment implements
     /* open the post detail if one entry is clicked. */
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
+        int INVALID_POST_ID = -1;
         super.onListItemClick(l, v, position, id);
-        if (id == -1) return; // prevent crash when id is -1;
+        if (id == INVALID_POST_ID) return; // prevent crash when id is -1;
         Intent i = new Intent(getActivity(), PostDetailActivity.class);
         Uri postUri = Uri.parse(PostContentProvider.CONTENT_URI + "/" + id);
         i.putExtra(PostContentProvider.CONTENT_ITEM_TYPE, postUri);
@@ -302,6 +267,8 @@ public class ContentFragment extends ListFragment implements
         String selection = PostReaderContract.PostTable.COLUMN_NAME_CATEGORY + " LIKE LOWER(?)";
         String[] selectionArgs = getCategoryMatchString();
         String sortOrder = getSortOrder(pageIndex);
+        Log.d(XinyueApi.XINYUE_LOG_TAG, "page index is " + pageIndex);
+        Log.d(XinyueApi.XINYUE_LOG_TAG, "sort order is " + sortOrder);
 
         return new CursorLoader(getActivity(),
                 PostContentProvider.CONTENT_URI,
@@ -349,7 +316,7 @@ public class ContentFragment extends ListFragment implements
         cursorAdapter.swapCursor(null);
     }
 
-    public void dismissProgressBarAndMakeToastIfNoDataConnection() {
+    private void dismissProgressBarAndMakeToastIfNoDataConnection() {
         makeToastToIndicateError(R.string.data_connect_is_off);
         dismissProgressBarIfErrorEncountered();
     }
@@ -407,17 +374,22 @@ public class ContentFragment extends ListFragment implements
         int id = item.getItemId();
 
         if (id == R.id.refresh) {
-            onClickRefresh();
+            refreshList();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
-    private void onClickRefresh() {
+    private void refreshList() {
         listView.smoothScrollToPosition(0);
         displayRefreshProgressBar();
         loadPage(FIRST_PAGE_INDEX);
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d(XinyueApi.XINYUE_LOG_TAG, "category " + category.getDisplayName() + " is resuming.");
+    }
 }
